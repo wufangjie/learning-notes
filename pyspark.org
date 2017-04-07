@@ -1,0 +1,150 @@
+#+title: pyspark
+#+author: wfj
+* 一些概念
++ RDD 支持两种操作 transformation, action. transformation 由一个 RDD 生成一个新的 RDD; action 会对 RDD 操作计算出一个结果
++ 惰性求值, 减少不必要的开销, action 的时候才进行一次性计算
++ RDD.persist() 缓存这个 RDD, 可以让多个 action 重用同一个 RDD, 移除缓存为 RDD.unpersist()
++ 序列化, 存储级别等等需要进一步研究
++ foreach 返回 None, 所以一般是利用函数的副作用, 比如 print, accumulator
++ fold 和 aggregate 可能会比 reduce 稍快一点, 因为不用为每个元素新建对象?
+
+* 两种最常用的创建 RDD 的方式
+#+BEGIN_SRC python
+from pyspark import SparkContext, SparkConf
+sc = SparkContext(conf=SparkConf())
+rdd = sc.parallelize(range(100), numSlices=None) # 默认是 core number
+lines = sc.textFile('algorithms.py')
+
+sc.stop() # shut down
+#+END_SRC
+
+* 分区
++ repartition 会进行 shuffle, 如果只是为了减少分区可以用 coalesce 避免 shuffle
++ repartition 只会改变分区的个数, 不能改变分区的方法
++ partitionBy(numPartitions, partitionFunc) 返回一个新的 RDD, RDD 一旦创建就无法修改
++ partitionFunc 只能作用于键值对; 且以键作为函数参数, 返回哈希值; 一般要与 persist 联用, 否则会一直重新分区, 起不到分区带来的好处
++ map, flatMap, mapPartitions, mapPartitionsWithIndex 都有 preservesPartitions 参数, 在函数不改变 key 的情况下, 可以保持分区不变
++ 很多函数都隐式调用了 mapPartitions, 需要每个分区返回的是一个 iterator 或 generator
++ Spark 中所有的键值对 RDD 都可以进行分区。系统会根据一个针对键的函数对元素进行分组。尽管 Spark 没有给出显示控制每个键具体落在哪一个工作节点上的方法(部分原因是 Spark 即使在某些节点失败时依然可以工作), 但 Spark 可以确保同一组的键出现在同一个节点上。
++ 可以从分区中受益的函数 cogroup, groupWith, join, leftOuterJoin, rightOuterJoin, groupByKey, reduceByKey, combineByKey, partitionBy, -sort-, mapValues, flatMapValues
+
+* 共享变量
+** accumulator
+| sc.accumulator(value, accum_param=None) | 创建     |
+|-----------------------------------------+----------|
+| value                                   | 常用属性 |
+
+需要在在 spark 传递的函数中用 global 声明\\
+需要满足交换率和结合率\\
+只有驱动器程序能通过 value 属性访问累加器的值, 工作节点不用知道累加器的值, 而是通过交换率和结合率计算最终结果, 从而减少通信。\\
+累加器不保证每个任务只修改一次(除非使用 foreach), 因此转化操作中的累加器最好只在调试时使用\\
+
+** broadcast
+用来高效分发较大的对象
+| sc.broadcast(value) | 创建     |
+|---------------------+----------|
+| value               | 常用属性 |
+
+* RDD 对象的成员函数
+| transformation                               |                                |
+|----------------------------------------------+--------------------------------|
+| map(f, preservesPartiotioning=False)         | 是否按之前的分区保存结果?      |
+| flatMap(f, preservesPartitioning=False)      | map 之后去一层括号             |
+| filter(f)                                    |                                |
+| distinct(numPartitions=None)                 |                                |
+| sample(withReplacement, fraction, seed=None) | 是否重复抽样(按元素而不是按值) |
+| glom()                                       | 转化分区的元素成一个列表       |
+|----------------------------------------------+--------------------------------|
+| union(other)                                 | 二元操作(不去重)               |
+| intersection(other)                          | 元素必须 hashable              |
+| subtract(other, numPartitions=None)          |                                |
+| cartesian(other)                             |                                |
+
+| 四个以 By 结尾的     |                                                |
+|----------------------+------------------------------------------------|
+| groupBy(f[, kwargs]) | 根据调用函数的结果分组成键值对, 值以 list 拼接 |
+| keyBy(f)             | 为每个值通过 f, 生成键                         |
+| partitionBy          | numPartitions, PartitionFunc=                  |
+| sortBy               | keyfunc, ascending=True, numPartitions=None    |
+
+
+| action                                      |                                |
+|---------------------------------------------+--------------------------------|
+| reduce(f)                                   | 空 RDD 会报错                  |
+| fold(zeroValue, op)                         | zeroValue 会被用到 分区数+1 次 |
+| aggregate(zeroValue, seqOp, combOp)         | 用于异构数据                   |
+| collect()                                   | 要求内存容得下                 |
+| count()                                     | 元素个数                       |
+| countByValue()                              | 返回 {值: 值个数} 字典         |
+| take(num)                                   | 会访问尽量少的分区, 返回 list  |
+| takeSample(withReplacement, num, seed=None) | 甚用, 所有数据都会被加载到内存 |
+| takeOrdered(num, key=None)                  | 同 top 只不过是从小到大        |
+| first()                                     | 空 RDD 会报错                  |
+| top(num, key=None)                          | 从大到小, 调用 takeOrdered?    |
+| getNumPartitions()                          | 获取分区数                     |
+|---------------------------------------------+--------------------------------|
+| foreach(f)                                  |                                |
+
+
+| 键值对专属函数              |                                                 |
+|-----------------------------+-------------------------------------------------|
+| keys()                      |                                                 |
+| values()                    |                                                 |
+| reduceByKey(func[, kwargs]) | numPartitions=None, partitionFunc=              |
+| foldByKey(...)              | 参数同 fold + 上述 kwargs                       |
+| aggregateByKey(...)         | 参数同 aggregate + 上述 kwargs                  |
+| groupByKey([kwargs])        | 类似 groupBy, 不过是按 key, 而不是提供的函数    |
+| sortByKey(...)              | 类似 sortBy, 参数相同但顺序不同                 |
+| mapValues(f)                | 对 key 的 value 进行一系列操作                  |
+| flatMapValues(f)            | mapValues 之后, 新值去一层括号, 拆成多个键值对  |
+| combineByKey                | 详见后, 是很多其他聚合函数的实现基础            |
+|-----------------------------+-------------------------------------------------|
+| subtractByKey(...)          | 二元操作, 参数同 subtract                       |
+| join(...)                   | 参数同上, 直接 inner join on key                |
+| leftOuterJoin(...)          | 参数同上, None 补齐                             |
+| rightOuterJoin(...)         | 参数同上, None 补齐                             |
+| cogroup(...)                | 参数同上, 先 groupByKey, 再 outer join, [] 补齐 |
+| groupWith(other[, *others]) | cogroup 的多元版本, 不能指定分区数              |
+|-----------------------------+-------------------------------------------------|
+| collectAsMap()              | action, 等价于 dict(collect())                  |
+| countByKey()                | action                                          |
+| lookup(key)                 | action, 返回 groupByKey 之后该 key 对应的值     |
+#+BEGIN_SRC python
+combineByKey(createCombiner, mergeValue, mergeCombiners, numPartitions=None, partitionFunc=<function portable_hash at 0x7f9aa48de730>)
+# 前三个参数都是函数
+# 第一个函数是每个分区的每个 key 的第一个元素, 如何转化
+# 第二个函数是每个分区的非第一个元素, 如何和该 key 的前一次结果生成新的结果
+# 第三个函数是把每个分区的结果转化成最终结果
+#+END_SRC
+
+| 按分区执行函数, 分区元素的迭代器 => 结果的迭代器     |                          |
+|------------------------------------------------------+--------------------------|
+| mapPartitions(f, preservesPartitioning=False)        | 参数为分区元素的迭代器   |
+| mapPartitionsWithIndex(f, preservesPartitions=False) | 之前再加一个分区的 index |
+| mapPartitionsWithSplit(f, preservesPartitions=False) | deprecated, 完全同上     |
+|------------------------------------------------------+--------------------------|
+| foreachPartition(f)                                  |                          |
+
+* 数值操作
+| stats()              | 返回 StatCounter 对象, 包括下述成员                |
+|----------------------+----------------------------------------------------|
+| count()              |                                                    |
+| mean()               |                                                    |
+| sum()                |                                                    |
+| max()                | rdd.min(key=None)                                  |
+| min()                | rdd.min(key=None)                                  |
+| variance()           |                                                    |
+| sampleVariance()     | 样本方差, 这些数据是样本时估计的总体方差, 所以较大 |
+| stdev()              |                                                    |
+| sampleVariance()     |                                                    |
+|----------------------+----------------------------------------------------|
+| m2                   | variance() * count()                               |
+| mu                   | mean()                                             |
+| n                    | count()                                            |
+| maxValue             | max()                                              |
+| minValue             | min()                                              |
+|----------------------+----------------------------------------------------|
+| asDict(sample=False) | 返回一些统计量的字典, 没有返回的都能简单推算出     |
+| copy()               |                                                    |
+| merge(value)         |                                                    |
+| mergeStats(other)    |                                                    |

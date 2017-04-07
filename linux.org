@@ -1,0 +1,728 @@
+#+title: linux
+#+author: wfj
+* 需要保存的配置文件
+  | .config/fcitx/ |
+  | .config/xfce4/ |
+  | .emacs.d/      |
+  | .fonts/        |
+  | .mozilla/      |
+  | .pip/          |
+  | .emacs         |
+  | .theanorc      |
+  | .xmodmap       |
+  | .bash_history  |
+
+* linux commandline
+** wildcard
+| ?   |
+| *   |
+| []  |
+| [-] |
+| [^] |
+
+** special characters
+| \    | 转义                                                               |
+| #    | 注释                                                               |
+| "    | 只会解释 wildcard 和 \, `$ 也会影响, 不过不用 shell 的话基本用不到 |
+| 空格 | 分隔                                                               |
+| 竖线 | 管道                                                               |
+| ;    | 命令分隔符                                                         |
+功能其实用到的很有限, 主要是文件名的处理\\
+我认为给所有的 [^a-zA-Z0-9] 前都加一个 \ 就是 bash-safe 的, 不知道对不对
+
+** pipelines
+pipe operator |, 之后不加 xargs 的话, 就是把前一条命令的结果当作一个文件用后一条命令来处理; 否则, 就是把前一条命令的结果当作参数追加到后一条命令并执行\\
+eshell 的命令行的长度只能到最低标准 4096, 所以用起来会有问题, 不知道能不能通过设置变量解决, 但我查了 describe-variance 中 eshell 相关变量未发现能改的
+
+** grep
+| -E | --extended-regexp            |
+| -F | --fixed-strings (full match) |
+| -G | --basic-regexp (default)     |
+| -P | --perl-regexp                |
+|----+------------------------------|
+| -r | --recursive                  |
+| -n | --line-number                |
+| -i | --ignore-case                |
+| -v | --invert-match               |
+| -l | --files-with-matches         |
+| -L | --files-without-match        |
+
+#+BEGIN_SRC sh
+grep -rn string_you_want files
+find ~/ -name "*.py" | xargs grep ...
+# when items contain white-space, quotes or backslash, write as follow
+find ~/ -name "*.py" -print0 | xargs --null grep ...
+apt-cache pkgnames | grep -E ^python3-a
+#+END_SRC
+
+** find
+有时候 * 需要转义, 还不太清楚
+| -name pattern | Wildcard                                        |
+| -size n       | c(Bytes), w(2-byte words), b(default), k, M, G  |
+| -type c       | d(Directory), f(Regular file), l(Symbolic link) |
+| -maxdepth n   | 0 表当前结点 (一般为文件夹名, 不检查文件)       |
+| -mindepth n   | 同上                                            |
+|---------------+-------------------------------------------------|
+| -and          |                                                 |
+| -or           |                                                 |
+| -not          |                                                 |
+| ( )           |                                                 |
+|---------------+-------------------------------------------------|
+| -group name   |                                                 |
+| -user name    |                                                 |
+| -perm mode    |                                                 |
+| -ctime n      |                                                 |
+| -mtime n      |                                                 |
+
+#+BEGIN_SRC sh
+sudo find / -name "*#"
+#+END_SRC
+
+** pip
+| -U | --upgrade            |                                          |
+| -i | --index-url <url>    | http://pypi.doubanio.com/simple          |
+|    | --timeout <sec>      |                                          |
+|    | --user               |                                          |
+| -t | --target <dir>       | Install packages into <dir>              |
+|    | --egg                | When install mysql-connector-python-rf   |
+| -r | --requirement <file> | Install from the given requirements file |
+
+#+BEGIN_SRC sh
+pip3 -V
+sudo pip3 install -U pip
+sudo pip3 install packname
+sudo pip3 install local_package.tar.gz
+pip3 search packname_like
+pip3 search packname_like | grep -E some_regexp
+pip3 show packname  # Show information about installed packages
+pip3 list  # List installed packages
+#+END_SRC
+
+** git
+*** config
+配置用户名和邮箱
+#+BEGIN_SRC sh
+git config --global user.name "wfj"
+git config --global user.email "wufangjie1223@126.com"
+#+END_SRC
+显示当前配置
+#+BEGIN_SRC sh
+git config --list
+#+END_SRC
+
+*** 连接 github
+ssh key
+#+BEGIN_SRC sh
+ssh-keygen -t rsa -C "wufangjie1223@126.com"
+#+END_SRC
+
+可以看到如下结果:
+#+BEGIN_EXAMPLE
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/wfj/.ssh/id_rsa):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/wfj/.ssh/id_rsa.
+Your public key has been saved in /home/wfj/.ssh/id_rsa.pub.
+The key fingerprint is:
+aa:82:77:24:b1:42:08:19:ec:3f:17:2c:c5:cb:82:df wufangjie1223@126.com
+The key's randomart image is:
++--[ RSA 2048]----+
+|oo  .            |
+|o.   o           |
+|+ . + .          |
+|.+.o =           |
+|. oo+ . S        |
+|. o+.E .         |
+| o oo .          |
+|. o ..           |
+| . o.            |
++-----------------+
+#+END_EXAMPLE
+
+在 github 账户右上角 Settings -> SSH and GPG keys\\
+在 中添加 ssh key, 复制 id_rsa.pub 内容到相应位置
+#+BEGIN_SRC sh
+ssh -T git@github.com # 测试
+#+END_SRC
+
+*** 创建版本库
+cd 到要作为仓库的目录, 最好是新建的空目录
+#+BEGIN_SRC sh
+git init
+#+END_SRC
+此时会生成一个 .git 目录, 是 git 来跟踪管理版本库的
+#+BEGIN_SRC sh
+git remote add origin git@github.com:wufangjie/learning-notes
+#+END_SRC
+
+*** 提交文件到版本库
+最好用纯文本文件, 用 UTF-8 编码
+#+BEGIN_SRC sh
+git add git.org # 添加文件内容至索引
+git commit -m "some message" # 记录变更到版本库
+git push origin master # 提交到远程 github 仓库
+#+END_SRC
+
+*** pull
+#+BEGIN_SRC sh
+git pull https://github.com/wufangjie/learning-notes master
+#+END_SRC
+
+** file manager
+| ls    | -a -d -h -l -R          | -r -U -S -t -v -X    emacs dired sort |
+| cd    |                         |                                       |
+| pwd   |                         |                                       |
+|-------+-------------------------+---------------------------------------|
+| cp    | -i -r -u                | cp item1 item2  cp item... dir        |
+| mv    | -i -u                   | mv item1 item2  mv item... dir        |
+| rm    | -i -r -d                | rm item...                            |
+| mkdir | -p                      | mkdir dir...                          |
+| rmdir | -p                      |                                       |
+| chmod | -R                      | chmod -R 775 ~/pdf                    |
+| chown | -R                      |                                       |
+| chgrp | -R                      |                                       |
+| ln    | -s                      | ln file link  ln -s item link         |
+| cat   |                         | use emacs instead                     |
+| wc    |                         | Word Count                            |
+|-------+-------------------------+---------------------------------------|
+| grep  |                         |                                       |
+| sort  |                         |                                       |
+| uniq  |                         |                                       |
+|-------+-------------------------+---------------------------------------|
+| df    | df -h                   | Disk Free                             |
+| du    | du -ah --max-depth 1 ~/ | Disk Usage                            |
+
+** hardware manager
+| dd     |                                  |            |
+| fdisk  | sudo fdisk -l /dev/sd[b-z]       |            |
+| mkfs   |                                  |            |
+| lscpu  |                                  |            |
+| lspci  |                                  |            |
+| lsusb  |                                  |            |
+| mount  |                                  |            |
+| umount |                                  |            |
+
+*** 制作启动 u 盘
+注意, 会格式化 u 盘
+#+BEGIN_SRC sh
+df -h
+sudo fdisk -l
+umount /dev/sdb
+sudo dd if=xubuntu-16.04-desktop-amd64.iso of=/dev/sdb bs=4M
+#+END_SRC
+
+*** 格式化
+#+BEGIN_SRC sh
+sudo mount /dev/sdb /mnt
+sudo umount /dev/sdb1
+sudo mkfs -t vfat /dev/sdb1
+#+END_SRC
+
+** other
+*** wget
+#+BEGIN_SRC sh
+wget -c -r http://www.fon.hum.uva.nl/david/ma_ssp/2007/TIMIT/
+wget -nc -r http://www.fon.hum.uva.nl/david/ma_ssp/2007/TIMIT/
+#+END_SRC
+
+*** ssh
+#+BEGIN_SRC sh
+ssh -l root xxx.xxx.xxx.xxx
+#+END_SRC
+
+*** fc-list (字体)
+#+BEGIN_SRC sh
+fc-list
+fc-list :lang=zh
+#+END_SRC
+
+* 一次性内容
+** 重装注意事项
+*** 常用软件
+#+BEGIN_SRC sh
+sudo apt-get update
+sudo apt-get install emacs
+sudo apt-get install git
+sudo apt-get install python-virtualenv
+sudo apt-get install python-pip python3-pip
+
+sudo apt-get upgrade
+sudo apt-get install python3-dev
+sudo apt-get install python3-numpy python3-scipy python3-matplotlib
+sudo apt-get install python-numpy python-scipy python-matplotlib
+
+sudo apt-get install mysql-server mysql-client
+sudo apt-get install synaptic
+sudo apt-get install libreoffice
+sudo apt-get install subversion
+sudo apt-get install p7zip p7zip-full p7zip-rar
+sudo apt-get install unrar
+
+sudo dpkg -i /home/wfj/Downloads/deadbeef-static_0.7.2-2_amd64.deb
+
+sudo apt-get install texinfo  # makeinfo
+#+END_SRC
+
+*** locale 配置
+为了能输入中文, 修改如下, 更详细的说明见上一级目录的 locale\\
+C-x C-f /sudo:://etc/default/locale
+#+BEGIN_EXAMPLE
+LANG="en_US.UTF-8"
+LC_CTYPE="zh_CN.UTF-8"
+#+END_EXAMPLE
+
+** fcitx
+#+BEGIN_SRC sh
+sudo apt-get install fcitx-config-gtk2
+sudo apt-get install fcitx-libpinyin fcitx-anthy fcitx-sunpinyin
+#+END_SRC
+输入法有时需要输入 im-config 来选择一下输入法
+fcitx-libpinyin 替代 fcitx-sunpinyin
+fcitx-anthy 日语输入引擎 (另一个是 fcitx-mozc, 不好用)
+fcitx configuration 中 Trigger input method 用来切换当前输入法和英文, scroll between input method 在非英文下, 滚动切换所有可选的输入法
+anthy circle typing method 的 ctrl + / 会跟 emacs 的撤销冲突, 要改　ctrl + 没有 keycode 的可以设置为 empty
+
+** 系统设置 (快捷键等)
+即保存 ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
+*** Settings -> Keyboard -> Application Shortcuts
+删除所有, 添加以下两个
+| xfce4-appfinder             | Ctrl+' |
+| xfce4-appfinder --collapsed | Ctrl+; |
+
+*** Settings -> Window Manager -> Keyboard
+| Window operations menu             | 修改为 Super+Space |
+| Up                                 | Up                 |
+| Down                               | Down               |
+| Left                               | Left               |
+| Right                              | Right              |
+| Cancel                             | Cancel             |
+| Cycle windows                      | Alt+Tab            |
+| Cycle windows (Reverse)            | Shift+Alt+Tab      |
+| Switch window for same application |                    |
+| Close window                       | 修改为 Alt+4       |
+|------------------------------------+--------------------|
+| Maximize window                    | Super+Up           |
+| Move window                        | Super+Down         |
+| Tile window to the left            | Super+left         |
+| Tile window to the right           | Super+right        |
+| 其他                               | 清空               |
+
+*** Settings -> Window Manager Tweaks -> Accessibility
+Hide title of windows when maximized 打勾
+
+*** Application Finder -> Preferences -> Custom Actions
+| Type   | Pattern | Command   |
+|--------+---------+-----------|
+| Prefix | em      | emacs -fs |
+全屏启动, 这样就不用在 .emacs 中写 (toggle-frame-fullscreen)
+
+** 安装软件源里没有的 python 包
+#+BEGIN_SRC sh
+sudo pip3 install --egg mysql-connector-python-rf # --egg
+sudo pip3 install -U scikit-learn
+#+END_SRC
+
+*** 添加自己写的 python 库到路径
+C-x C-f /sudo::/usr/lib/python3/dist-packages/wfj.pth
+#+BEGIN_SRC sh
+/home/wfj/packages
+#+END_SRC
+找文件位置可以
+#+BEGIN_SRC python
+import site
+print(site.getsitepackages())
+#+END_SRC
+
+*** Theano
+#+BEGIN_SRC sh
+sudo apt-get install python-numpy python-scipy python-dev python-pip python-nose g++ libopenblas-dev git
+sudo pip install Theano
+sudo apt-get install python3-dev python3-nose g++ libopenblas-dev
+#sudo pip3 install Theano
+# 为了一些新的特性, 安装最新版, 比如 downsample.max_pool_2d 的 mode 参数
+sudo pip3 install --upgrade --no-deps git+git://github.com/Theano/Theano.git
+    #+END_SRC
+
+*** tensorflow
+github 上的 install 页面, gpu 版需要安装 cuda 和 cudnn
+#+BEGIN_SRC sh
+sudo pip3 install -U https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-0.9.0-cp35-cp35m-linux_x86_64.whl
+#+END_SRC
+
+*** +pycuda+
+#+BEGIN_SRC sh
+cd Downloads/pycuda-2016.1/
+python3 configure.py --cuda-root=/usr/local/cuda-7.5/
+sudo make install
+#+END_SRC
+可能会有出错信息如下:\\
+File "/Library/Python/2.7/site-packages/pytools-2014.3.5-py2.7.egg/pytools/__init__.py", line 5, in <module>\\
+from six.moves import range, zip, intern, input\\
+ImportError: cannot import name intern\\
+需要 six 的版本 1.9.0 以上, 最新为 1.10.0
+首先确定 python 用的 six 的位置 six.__file__, 然后更新到该位置
+#+BEGIN_SRC sh
+pip3 install six -U -t /usr/lib/python3/dist-packages/
+#+END_SRC
+
+** vi 基本操作 (用来修改 /etc/apt/sources.list)
+| 快捷键      | 功能                                  |
+|-------------+---------------------------------------|
+| ESC         | 切换不同的模式                        |
+| i           | 当前游标之前输入                      |
+| A           | 当前游标行末输入                      |
+| o/O         | 当前行之下/上新增一行, 并在新增行输入 |
+| x           | 删除游标所在字符                      |
+| dd          | 删除游标所在行                        |
+| nx          | 删除游标之后n个字符                   |
+| ndd         | 删除游标所在行之下n行                 |
+| u           | 撤销上一步操作, 没有kill ring         |
+| 方向键/hjkl |                                       |
+| :wq         | 保存并退出                            |
+| :q!         | 强制退出                              |
+
+** cuda 安装配置
+*** 独立显卡只做为计算卡, 不用于显示
+在 bios 中设置集成显卡为主要显示卡
+
+*** 安装 cuda
+以下步骤在, 开机直接进入命令行或 init 3 后进行
+#+BEGIN_SRC sh
+sudo dpkg -i cuda-repo-ubuntu1404-7-5-local_7.5-18_amd64.deb
+sudo apt-get update
+sudo apt-get install cuda
+#+END_SRC
+
+*** 安装 cudnn
+#+BEGIN_SRC sh
+sudo cp ./lib64/* /usr/local/cuda-8.0/lib64/
+sudo cp ./include/* /usr/local/cuda-8.0/include/
+sudo rm libcudnn.so.5 libcudnn.so
+sudo ln -s libcudnn.so.5.0.5 libcudnn.so.5
+sudo ln -s libcudnn.so.5 libcudnn.so
+#+END_SRC
+
+*** 配置 theano 使用 gpu
+~/.theanorc
+#+BEGIN_EXAMPLE
+[global]
+device = gpu
+floatX = float32
+#+END_EXAMPLE
+在 /etc/profile 最后加这句
+#+BEGIN_SRC sh
+export PATH=/usr/local/cuda-7.5/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-7.5/lib64:$LD_LIBRARY_PATH
+#+END_SRC
+
+*** 开机进入显示详细的启动过程和进入命令行
+C-x C-f /sudo::/etc/default/grub
+用 # 注释GRUB_CMDLINE_LINUX_DEFAULT开头的行, 这会禁止初始屏幕, 而启动详细模式(也就是说显示详细的的启动过程)\\
+更改 GRUB_CMDLINE_LINUX="" 成: GRUB_CMDLINE_LINUX="text"\\
+取消 #GRUB_TERMINAL=console 的注释.\\
+#+BEGIN_SRC sh
+sudo update-grub
+#+END_SRC
+
+*** 添加环境变量
++ 全局
+  /etc/profile, 为了 theano 正常调用 cuda, 添加如下内容:
+  #+BEGIN_SRC sh
+export PATH=/usr/local/cuda-7.5/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-7.5/lib64:$LD_LIBRARY_PATH
+  #+END_SRC
++ $PATH
+  /etc/environment
++ .bashrc 因为我用 emacs 所以不起作用
+
+*** 配置 openblas
+| cpu 上的数学库 | MKL, openblas, atlas, fftw |
+| gpu 上的数学库 | cublas, cufft              |
+| gpu 上的专业库 | cudnn                      |
+
+ATLAS has to be removed, otherwise NumPy may not work:
+#+BEGIN_SRC sh
+sudo apt-get remove libatlas3gf-base libatlas-dev
+sudo apt-get install libopenblas-dev
+#+END_SRC
+blas and lapack\\
+Run sudo update-alternatives --all and set liblapack.so.3gf to /usr/lib/lapack/liblapack.so.3gf\\
+Default Blas + Default Lapack => OK\\
+OpenBlas + Default Lapack => OK\\
+Atlas-Blas + Default Lapack => OK\\
+Atlas-Blas + Atlas-Lapack => OK\\
+OpenBlas + Atlas-Lapack => ERROR! (The following case here.)\\
+
+By the way, you can just find the necessary files in /etc/alternatives/, usually with a filename starting with lib*. For each one do sudo update-alternatives --config <filename>. For example, do to following:
+#+BEGIN_SRC sh
+sudo update-alternatives --config libblas.so
+sudo update-alternatives --config libblas.so.3
+#+END_SRC
+to change the Blas version.
+
+** spark
+*** http://spark.apache.org/downloads.html 下载玩解压就行, 不用安装
+*** 配置
+/etc/profile
+#+BEGIN_SRC sh
+export PYSPARK_PYTHON=python3
+export PATH=/home/wfj/spark-2.0.2-bin-hadoop2.7/bin/:$PATH
+#+END_SRC
+python 的路径中加入
+#+BEGIN_EXAMPLE
+/home/wfj/spark-2.0.2-bin-hadoop2.7/python/
+#+END_EXAMPLE
+解压 /python/lib 中的 py4j 到 /python 下
+
+** 修改键盘映射 (直接复制 ~/.xmodmap, 调用相应代码即可)
+#+BEGIN_EXAMPLE
+remove Lock = Caps_Lock
+remove Control = Control_L
+keysym Caps_Lock = Control_L
+keysym Control_L = Caps_Lock
+add Lock = Caps_Lock
+add Control = Control_L
+
+remove mod1 = Alt_R
+remove Control = Control_R
+keysym Alt_R = Control_R
+keysym Control_R = Alt_R
+add mod1 = Alt_R
+add Control = Control_R
+#+END_EXAMPLE
+两个命令,查看产生的 keycode
+#+BEGIN_SRC sh
+xev
+xmodmap -pm
+xmodmap -pk  JJJJ
+xmodmap -e "keycode 97 = 0x60 0x7e"
+xmodmap -e "keycode 44 = j J"
+xmodmap ~/.xmodmap # filename
+#+END_SRC
+#+BEGIN_EXAMPLE
+keycode 102 = Alt_L
+add mod1 = Alt_L
+keycode 100 = Control_R
+add control = Control_R
+keycode 97 = 0x60 0x7e
+#+END_EXAMPLE
+
+** firefox/iceweasel (直接复制 .mozilla 即可)
++ Decentraleyes
+  安装即用, stackoverflow 等需要调用 google api 的网站加速
++ 最好的夜间模式 stylish
+  #+BEGIN_SRC css
+browser[type="content-primary"]{background-color:black!important;}
+html{opacity:0.7!important;background:black!important;}
+body{background:white!important;}
+
+#urlbar{background:#E3EDCD!important;}
+.autocomplete-textbox-container{background:#E3EDCD!important;}
+
+@-moz-document url(about:newtab){window{background:#222222!important}}
+  #+END_SRC
++ 禁用 alt 快捷键弹出菜单栏\\
+  主要影响切换输入法 fcitx, ibus 的浏览器跟随有问题, 不用, 方法如下:\\
+  地址栏搜索about:config, ui.key.menuAccessKey 双击改为0, 重启浏览器
++ firebug
++ firemacs (类 emacs 键绑定)
++ 安装 abobe flash player
+  下载 install_flash_player_11_linux.x86_64.tar.gz\\
+  解压：tar -xzf install_flash_player_11_linux.x86_64.tar.gz
+  #+BEGIN_SRC sh
+mkdir -p ~/.mozilla/plugins/
+cp libflashplayer.so  ~/.mozilla/plugins/
+  #+END_SRC
+  重启 iceweasel
+
+** locale
+*** 修改语言包
++ debian
+  #+BEGIN_SRC sh
+sudo emacs /etc/locale.gen  # 取消或注释
+sudo locale-gen
+  #+END_SRC
++ ubuntu
+  #+BEGIN_SRC sh
+sudo locale-gen en_US.UTF-8
+  #+END_SRC
+  即可安装 en_US.UTF-8 locale文件, 并在 /var/lib/locales/supported.d 下产生相应的locale文件\\
+  也可以使用 /usr/share/locales 目录下的 install-language-pack 和 remove-language-pack 工具来安装和移除语言包
+
+*** 修改默认 locale
+#+BEGIN_SRC sh
+sudo emacs /etc/default/locale  # 为了能输入中文, 修改如下:
+LANG="en_US.UTF-8"
+LC_CTYPE="zh_CN.UTF-8"
+#+END_SRC
+| LC_CTYPE          | 语言符号及其分类             |
+| LC_NUMERIC        | 数字                         |
+| LC_COLLATE        | 比较和排序习惯               |
+| LC_TIME           | 时间显示格式                 |
+| LC_MONETARY       | 货币单位                     |
+| LC_MESSAGES       | 信息                         |
+| LC_NAME           | 姓名书写方式                 |
+| LC_ADDRESS        | 地址书写方式                 |
+| LC_TELEPHONE      | 电话号码书写方式             |
+| LC_MEASUREMENT    | 度量衡表达方式               |
+| LC_PAPER          | 默认纸张尺寸大小             |
+| LC_IDENTIFICATION | 对 locale 自身包含信息的概述 |
+注1: TODO: 下划线如何取消表示默认的下标, 目前尚不清楚\\
+注2: 信息主要是提示信息, 错误信息, 状态信息, 标题, 标签, 按钮和菜单等\\
+设定 locale 就是设定 12 大类的 locale 分类属性, 即 12 个 LC_*. 除了这 12 个变量可以设定以外, 为了简便起见, 还有两个变量: LC_ALL 和 LANG. 它们之间有一个优先级的关系: LC_ALL > LC_* > LANG. 可以这么说, LC_ALL是最上级设定或者强制设定, 而LANG是默认设定值.
+
+* +已经弃用内容+
+** xfce4 快捷键 (一般不需要, 用好 application finder 就够了, 配合 eshell 快速打开文件)
+  ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml\\
+  修改完成要注销
+
+** 字体 (其实不用控制台, 自己用用的话, 复制 .fonts 就够了)
+   #+BEGIN_SRC sh
+sudo mkdir -p /usr/share/fonts/favo
+sudo cp ~/xfce4/config/.font/* /usr/share/fonts/favo/
+sudo chmod 644 /usr/share/fonts/favo/*
+
+cd /usr/share/fonts/favo/
+sudo mkfontscale   # (用来控制字体旋转缩放)
+sudo mkfontdir     # (用来控制字体粗斜体产生)
+sudo fc-cache -fv  # (建立字体缓存信息)
+   #+END_SRC
+
+** 安装 sudo (xubuntu 已自带)
+   #+BEGIN_SRC sh
+apt-get install sudo
+   #+END_SRC
+   修改配置文件 /etc/sudoers, 先赋予写权限, 再取消
+   #+BEGIN_SRC sh
+chmod u+w /etc/sudoers
+   #+END_SRC
+   其他形式参数 u/g/o r/w/x
+
+** 实现与 windows 的共享 (xubuntu 已自带)
+   #+BEGIN_SRC sh
+sudo apt-get install samba
+   #+END_SRC
+   在文件管理工具中输入 smb://192.168.1.199
+
+** 安装 debian (不支持新的 cuda, 已改用 xubuntu)
+   主要是固件不开源, 需要在命令行和图形用户界面切换, 用 C-M F2/F5
+   #+BEGIN_SRC sh
+fdisk -l
+mkdir /cdrom
+umount /cdrom
+mount /dev/sdb1 /cdrom
+   #+END_SRC
+
+** 命令行联网
+   +有了 xfce, 不再用命令行了+\\
+   #+BEGIN_SRC sh
+ifconfig -a
+ifconfig interface_x up
+wpa_supplicant -B -i interface_x -c /etc/wpa_supplicant/xxx.conf
+dhclient interface_x
+   #+END_SRC
+
+** 安装 qq, 用网页版即可
+** 禁用触摸板
+   useless, linux 下触摸板和声卡驱动都有不少问题
+   #+BEGIN_SRC sh
+sudo rmmod psmouse
+   #+END_SRC
+   #+BEGIN_SRC sh
+sudo modprobe psmouse
+   #+END_SRC
+
+** 默认文件夹改成英文
+   1. 使用命令\\
+      #+BEGIN_SRC sh
+export LANG=en_US
+xdg-user-dirs-gtk-update
+      #+END_SRC
+   2. 在弹出的窗口中询问是否将目录转化为英文路径, 同意并关闭\\
+   3. 使用命令\\
+      #+BEGIN_SRC sh
+export LANG=zh_CN
+      #+END_SRC
+   4. 重启Ubuntu, 下次进入系统后, 会提示是否把目录转化为中文, 选择不许并选择不再提示, 并取消修改\\
+
+** 配件
+   | 硬件     | 型号            | 价格 | 价格828 |
+   |----------+-----------------+------+---------|
+   | cpu      | i5-4590         | 1299 |    1319 |
+   | 主板     | 技嘉 B85M-D3H   |  499 |     479 |
+   | 主板     | 技嘉 B85M-HD3-A |      |     459 |
+   | 内存     | 威刚万紫千红    |  299 |     269 |
+   | 固态硬盘 | 浦科特 M6S 128G |  429 |     439 |
+   | 机箱     | 爱国者优果白色  |  199 |     199 |
+   | 电源     | 台达 NX350      |  219 |     229 |
+   | 显示器   | 戴尔 U2412M     | 1799 |         |
+   | 机械键盘 | 樱桃            | 太贵 |         |
+   | 显卡     | 微星gtx970      |      |    2499 |
+   |          | 微星gtx750 ti   |      |     899 |
+
+** mac
+*** mysql(本地已很少用)
+    #+BEGIN_SRC sh
+brew install mysql
+    #+END_SRC
+    启动代码
+    #+BEGIN_SRC sh
+mysql.server start
+    #+END_SRC
+    开机自动启动，第三句不知道作用
+    #+BEGIN_SRC sh
+mkdir -p ~/Library/LaunchAgents
+ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
+find /usr/local/Cellar/mysql/ -name "homebrew.mxcl.mysql.plist" -exec cp {} ~/Library/LaunchAgents/ \;
+launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
+    #+END_SRC
+
+*** 修改键盘映射
+    + preferences
+      修改修饰符 caps lock
+    + seil
+      日语键盘 必须要 enable eisuu and kana
+    + karabiner
+      use janpanese keyboard as US keyboard
+    + emacs mode
+      全局快捷键
+
+*** 快捷键
+    | ctrl + ;    | 自己设置, 调 alfred          |
+    | ctrl-tab    | safari 中用来在标签之间切换  |
+    | command-w   | safari 中关闭页面            |
+    | command-tab | 窗口切换                     |
+    | command-q   | 关闭应用, 可在窗口切换时使用 |
+
+*** defaults
+    显示全部路径
+    #+BEGIN_SRC sh
+defaults write com.apple.finder _FXShowPosixPathInTitle -bool YES
+killall Finder
+    #+END_SRC
+    加速 dock 显示
+    #+BEGIN_SRC sh
+defaults write com.apple.Dock autohide-delay -float 0
+killall Dock
+    #+END_SRC
+    恢复默认
+    #+BEGIN_SRC sh
+defaults delete com.apple.Dock autohide-delay
+    #+END_SRC
+
+** ubuntu 14.04 使用较新版 emacs(ppa)
+   #deb http://ppa.launchpad.net/andreas-h/emacs/ubuntu trusty main
+
+** ubuntu 14.04 sunpinyin 的双拼下 ue 和 iong 的韵母问题
+   直接下载安装 http://ftp.cn.debian.org/debian/pool/main/o/open-gram/sunpinyin-data_0.1.22+20131212-1_amd64.deb
+   #+BEGIN_SRC sh
+sudo dpkg -i sunpinyin-data_0.1.22+20131212-1_amd64.deb
+   #+END_SRC
+
+** C 语言自动补全
+   #+BEGIN_SRC sh
+sudo apt-get install clang libclang-dev
+export PATH=/usr/lib/llvm-3.4/include/:/usr/lib/llvm-3.4/bin/:$PATH
+echo "" | g++ -v -x c++ -E -  # 查看头文件位置
+   #+END_SRC

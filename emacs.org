@@ -1,0 +1,949 @@
+#+title: emacs
+#+author: wfj
+* tricks
+打开文件时, 在文件名前加 /sudo:: 即可以 sudo 打开
+| 快捷键      | 命令                   | 说明                               |
+|-------------+------------------------+--------------------------------------|
+| M-;         |                        | 注释和反注释                         |
+| C-/         | undo                   | 还有其他快捷键, 但这个就够了         |
+| M-!         | shell-command          |                                      |
+| C-s C-s     |                        | 查找上一次确定的查找, C-g 取消的不算 |
+| C-r C-r     |                        | 同上, 方向不同                       |
+|             | erase-buffer           | 清空当前 buffer                      |
+|             | flush-lines RET regexp | 按正则表达式删除行                   |
+| ESC ESC ESC |                        | 有什么 C-g 终止不了的, 就用这个      |
+|             | man                    | 如果不用 eshell 而是其他, 可以一用   |
+
+** python-mode 的一些说明
+emacs25 之后 C-c C-s 和 C-c C-r 不再能够调用 run-python,\\
+需要先 C-c C-p 才行, 而且 C-c C-p 之前需要加 prefix command\\
+才能调出 dedicated process
+emacs24.5 C-c C-c 等带前缀的话, 可以让 if __name__ == '__main__' 块内的代码运行, 默认不运行
+
+** c 函数帮助文档
+1. c-mode 中我设置了键绑定 C-c d 来查看函数的 man pages
+2. M-x man RET
+
+** 对比两个 buffer
+M-x ediff-buffers 或 ediff 开启对比, (仅 linux 可用)\\
+此时会出现一个新的 frame (右上角提示) 可进行如下操作:
+| 竖线 | 切换模式 (上下对比 / 左右对比) |
+| ?    | 帮助                           |
+| q    | 退出                           |
+| j    | 移动到第一个差异处             |
+| n/p  | 上/下一个差异区域              |
+| V/v  | 上/下滚屏                      |
+|------+--------------------------------|
+|      | 其他功能暂时用不倒             |
+
+* regular expression
+|       |                                        |                              |
+|-------+----------------------------------------+------------------------------|
+|       | re-builder                             | string (use \\ instead of \) |
+| C-M-s | isearch-forward-regexp		 |                              |
+| C-M-r | isearch-backward-regexp                |                              |
+
+1. ^ $ . * + ? [ ] ( ) { } \ | [-], 作用和一般正则表达式基本相同, 不支持零宽断言等高级语法
+2. 相同
+| \w \W | 匹配任何构成词的字符, 由语法表决定   |
+| \1    | 匹配捕获                             |
+| \b \B | 匹配空串, 但仅在一个词的开始或结尾处 |
+| \< \> | 匹配空串, 但仅在一个词的开始或结尾处 |
+3. 与一般正则表达式区别
++ 大小写不敏感
++ ( ) { } | 匹配字符时不用转义, 特殊字符时反而要转义
++ \ 在 [] 中不是特殊字符, 比如 "[\n]" (字符串转义) 而不是 "[\\n]" (匹配 \ 或 n)
++ \d \D 不能匹配数字
++ ^ $ 匹配行首和行尾, \` \' 匹配 buffer 的头和尾
++ \sC \SC, C in {w(\w), -(\s), (\s), .(普通标点符号)}
++ \cC \CC, C 详见 M-x describe-categories
+
+* org-mode
+** 用大纲 (outline) 组织内容
+*** 定义标题
+1. * 要位于行首
+2. * 之后要有一个空格, 然后再输入标题
+3. 多个 * 表示多级大纲, 显示为不同颜色
+
+*** 大纲的状态
+| 光标所在大纲的状态         | 整个文档的大纲状态 |
+|----------------------------+--------------------|
+| 仅显示当前大纲             | 仅显示最高级标题   |
+| 显示该大纲下一级的所有标题 | 显示所有的标题     |
+| 展开该大纲的所有内容       | 显示所有的内容     |
+
+| 快捷键 | 说明                       |
+|--------+----------------------------|
+| S-TAB  | 循环切换整个文档的大纲状态 |
+| TAB    | 循环切换光标所在大纲的状态 |
+
+*** 在大纲之间移动
+| 快捷键    | 说明                                 |
+|-----------+--------------------------------------|
+| C-c C-p/n | 上/下一标题(当前显示标题之间)        |
+| C-c C-b/f | 上/下一标题(同级标题之间)            |
+| C-c C-u   | 跳到上一级标题                       |
+| C-c C-j   | 切换到大纲浏览状态(方便定位, 不常用) |
+
+*** 缩进
+默认的大纲没有缩进, 可以用 M-x org-indent-mode 切换\\
+如果想让某个文件默认用缩进方式打开，可以在文件头部加#+startup:indent\\
+可以通过全局变量 org-startup-indented 来控制所有文件的缩进\\
+
+** 超链接和图文混排
+*** 跳转
+| 快捷键 | 命令               | 说明                 |
+|--------+--------------------+----------------------|
+| C-c %  | org-mark-ring-push | 记录当前光标的位置   |
+| C-c &  | org-mark-ring-goto | 返回已记录的光标位置 |
+
+*** 创建 (外部) 链接
+| 自动链接                         |                                  |
+|----------------------------------+----------------------------------|
+| http://www.baidu.com/            | 网页                             |
+| file:/home/wfj/packages/utils.py | 绝对路径                         |
+| file:../org/emacs.org::40        | 定位到行, 当然, 可以是不同文件   |
+| file:emacs.org::jedi             | 定位到该词第一次出现的位置       |
+| file:emacs.org::#custom_id       | 定位到自定义id，还没学，先这样吧 |
+|                                  | 其他类型的链接不常用，不赘述     |
+
+显式指定链接, 可以用以下两种方式 (注意不能有空格):\\
+#+BEGIN_EXAMPLE
+[[http://www.baidu.com/][baidu]]
+[[link]]
+#+END_EXAMPLE
+#+BEGIN_SRC org
+[[http://www.baidu.com/][baidu]]
+[[link]]
+#+END_SRC
+
+| 快捷键  | 命令              | 说明     |
+|---------+-------------------+----------|
+| C-c C-l | org-insert-link   | 修改链接 |
+| C-c C-o | org-open-at-point | 打开链接 |
+也可以通过光标移到链接最后backspace后手动编辑\\
+
+*** 内部链接
+定位锚点 (anchor)<<anchor 1>>, 然后就可以像使用链接一样使用它了\\
+四种类型的注脚
+#+BEGIN_EXAMPLE
+注脚1[fn:1], 注脚2[fn:注脚2], 注脚3[fn::注脚详情后三个回车或新标题出现才能继续输入正文内容, 否则会被视为详情], 注脚4[fn:注脚4:[[anchor 1][猛击回锚点]]]
+[fn:注脚4] 有了描述的注脚, 不能再添加详情, 所以这段在文章最后是看不见的
+#+END_EXAMPLE
+注脚1[fn:1], 注脚2[fn:注脚2], 注脚3[fn::注脚详情后三个回车或新标题出现才能继续输入正文内容, 否则会被视为详情], 注脚4[fn:注脚4:[[anchor 1][猛击回锚点]]]
+[fn:1] 注脚详情会显示在文章最后, 通过 C-c C-o 可在注脚和详情之间来回跳转
+[fn:注脚2] 添加注脚的时候中括号不能顶格, 但定义注脚的时候必须顶格写
+[fn:注脚4] 有了描述的注脚, 不能再添加详情, 所以这段在文章最后是看不见的
+
+*** 显示图片
+现在还不需要, 据说挺折腾的, 以后再说
+
+** 轻量级标记语言
+*** 字体
+| **粗体**   |            |
+| /斜体/     |            |
+| +删除线+   |            |
+| _下划线_   |            |
+| 下标_2     |            |
+| 上标^2     |            |
+| =verbatim= | plain text |
+| ~code~     | plain text |
+
+*** 表格
+**** 创建和转换表格
+| 快捷键   | 命令             | 说明                                             |
+|----------+------------------+--------------------------------------------------|
+| C-c 竖线 |                  | 创建 Columns x Rows 的表格 或 转换选中区域成表格 |
+|          | org-table-export | 光标在表格内就行, 不用选中                       |
+也可以手动输入 | 或 |- 配合 tab 逐步创建
+
+**** 调整和区域移动
+| 快捷键  | 说明                           |
+|---------+--------------------------------|
+| C-c C-c | 调整表格，不移动光标           |
+| Tab     | 移动到下一区域，必要时新建一行 |
+| S-Tab   | 移动到上一区域                 |
+| RET     | 移动到下一行，必要时新建一行   |
+
+**** 编辑行和列
+| 快捷键         | 说明                             |
+|----------------+----------------------------------|
+| M-LEFT/RIGHT   | 移动列(分隔线属于前一列)         |
+| M-UP/DOWN      | 移动行                           |
+| M-S-LEFT/RIGHT | 删除当前列/在当前列前插入一列    |
+| M-S-UP/DOWN    | 删除当前行/在当前行前插入一行    |
+| C-c ^          | 根据当前列排序，可以选择排序方式 |
+| C-c -          | 添加水平分割线                   |
+| C-c RET        | 添加水平分割线并跳到下一行       |
+
+**** 最大列宽和分组 (竖线)
+中英文混排的话可能会有一格偏差\\
+<l>, <c>, <r> 表示对齐方式, 需要在文章头加 #+align, 可以和列宽连用, 如 <r10>
+| <24>                      |     |              |              |    |
+| /                         | <   |              | >            | <> |
+|---------------------------+-----+--------------+--------------+----|
+| '(font-lock-string-face   | ((t | (:foreground | "#ffa07a"))) | t) |
+| '(font-lock-comment-face  | ((t | (:foreground | "#66cd00"))) | t) |
+| '(font-lock-constant-face | ((t | (:foreground | "#ffb90f"))) | t) |
+| '(font-lock-variable-name-face | ((t | (:foreground | "#ffec8b"))) | t) |
+| ;'(font-lock-function-name-face | ((t | (:foreground | "#63b8ff"))) | t) |
+| '(font-lock-function-name-face | ((t | (:foreground | "#87ceff"))) | t) |
+| '(font-lock-keyword-face  | ((t | (:foreground | "#00ffff"))) | t) |
+| '(font-lock-builtin-face  | ((t | (:foreground | "#ffbbff"))) | t) |
+| '(font-lock-type-face     | ((t | (:foreground | "#9aff9a"))) | t) |
+| 只是一段足够长的中文,不够长的话, 就再来一遍 |     |              |              |    |
+
+**** 公式 (未完成, 竟然还可以用 elisp 函数, 太无解了)
+@row$column 正数负数表示正数倒数, 0 表示当前行, @#, $# 表示行号, 列号
+Org mode 默认使用的是 Emacs 中自带的 Calc 这个 package 来进行计算, M-x describe-function calc-TAB
+    # 基础算术方法: abs, sign, inv, sqrt, min, max，详见 Arithmetic Functions
+    # 对数方法: ln, exp, log，详见 Logarithmic Functions
+    # 三角函数: sin, cos, tahn，详见 Trigonometric/Hyperbolic Functions
+    # 随机数方法: random
+    # 向量/矩阵方法: vunion, vint, vsum, vmean, vmax, vmin, vmedian，详见 Vector/Matrix Functions
+#+NAME: 1
+| 1 |  2 |  3 |          4 |    5 |        |
+|---+----+----+------------+------+--------|
+| 2 | 91 | 39 | 0.42857143 | 9139 | #ERROR |
+| 3 |  1 | 96 |         96 |  196 |        |
+| 4 |  8 | 60 |        7.5 |  860 |        |
+| 5 | 70 | 89 |  1.2714286 | 7089 |        |
+| 6 | 18 | 22 |  1.2222222 | 1822 |        |
+| 7 | 10 | 42 |        4.2 | 1042 |        |
+| 8 | 11 |  2 | 0.18181818 |  112 |        |
+| 9 | 43 | 35 | 0.81395349 | 4335 |        |
+#+TBLFM: @1 = $#
+#+TBLFM: $1 = @#
+#+TBLFM: $4 = $3 / $2
+#+TBLFM: $5 = '(concat $2..$3)
+#+TBLFM: @2$6 = '(calc-vector-variance @2$2..@-1$2)
+
+(calc-vector-variance '(1 2 3))
+
+#+TBLFM: @9$2 = vsum(@2..@-1)
+#+TBLFM: $4 = $3 / $2 * $2
+
+|   | 2 | 3 | 4 | 5 |
+|---+---+---+---+---|
+|   |   |   |   |   |
+#+TBLFM: @1 = '(identity remote(1, @$#$1))
+#+TBLFM: @1 = remote(1, @$#$1)
+
+*** 数学公式
+TODO: 语法类似 mathjax 和 latex
+
+*** 段落
+对于单个回车换行的文本, 认为其属于同一个段落 (相当于回车改成空格), 若要换行, 可以连用两个回车, 或在段末加 =\\=
+
+*** 列表
+org能够识别有序列表, 无序列表和描述列表
+- 无序列表以 '-', '+' 或 '*' (不能顶格)开头, 这些符号可以混用
++ 有序列表以 '1.' 或 '1)' 开头
+- 描述列表用 '::' 将项和描述分开, 这个还没搞明白
+- 有序列表和无序列表都以缩进表示层级, 相同的缩进表示同一级
+
+| 快捷键         | 说明                     |
+|----------------+--------------------------|
+| TAB            | 折叠列表项               |
+| M-RET          | 插入项（自动对齐）       |
+| M-S-RET        | 插入带复选框的项         |
+| M-S-UP/DOWN    | 移动列表项               |
+| M-LEFT/RIGHT   | 升/降列表项，不包括子项  |
+| M-S-LEFT/RIGHT | 升/降列表项，包括子项    |
+| C-c C-c        | 改变复选框状态           |
+| C-c -          | 更换列表标记（循环切换） |
+其中移动表示改变次序，升降表示改变层级
+
+*** 分隔线
+五条短线或以上显示为分隔线
+-----
+
+** +标签 (tag)+
+** 插入模板
+| <s+tab | 后接 sh python emacs-lisp org sql C C++ 等 |
+| <e+tab | EXAMPLE 其中内容完全按照 plain text 显示   |
+语法高亮需要在 .emacs 文件中加 (setq org-src-fontify-natively t)
+
+* outline-minor-mode
+| 快捷键 | 命令                        | 说明     |
+|--------+-----------------------------+----------|
+|        | hide-body                   | 隐藏所有 |
+|        | show-all                    | 显示所有 |
+|        | hide-entry                  | 隐藏当前 |
+|        | show-entry                  | 显示当前 |
+|        | outline-backward-same-level |          |
+|        | outline-forward-same-level  |          |
+需要设置 outline-regexp 实现, 详见 .emacs, 类似功能的还有 hs-minor-mode
+
+* eshell
+为什么选择 eshell
++ 配合 outline-minor-mode 使用, 效果极佳
++ man 命令会在一个新的 buffer 打开帮助文档 (这个可以用 M-x man 代替)
++ 受限查找
++ 历史记录管理较容易 (过滤等)
++ prompt 是 read-only (有利有弊)
++ 跨平台 (其实 windows 下功能也很有限)
+- 命令长度限制太小 (4096?), 使用 pipeline 时会有问题
+
+| 快捷键  | 命令                   | 说明                              |
+|---------+------------------------+-----------------------------------|
+| C-c C-n | eshell-next-prompt     |                                   |
+| C-c C-p | eshell-previous-prompt |                                   |
+|---------+------------------------+-----------------------------------|
+|         | sort-lines             |                                   |
+|         | reverse-region         |                                   |
+|         | delete-duplicate-lines | 保留第一个, 前缀 C-u 保留最后一个 |
+
+* dired-mode
+| 快捷键 | 命令                         | 说明                                  |
+|--------+------------------------------+---------------------------------------|
+| C-x d  | dired                        |                                       |
+|--------+------------------------------+---------------------------------------|
+| j      | dired-goto-file              | 利用 minibuffer 的补全功能跳转        |
+| k      | dired-do-kill-lines          | 隐藏标记的文件                        |
+| g      | revert-buffer                | 更新 buffer                           |
+| s      | dired-sort-toggle-or-edit    | 已重写, 按 ls 的参数展示, 详见 .emacs |
+| (      | dired-hide-details-mode      |                                       |
+| y      | dired-show-file-type         |                                       |
+| q      | quit-window                  | 有前缀才能删除 buffer, 不如用 C-x k   |
+|--------+------------------------------+---------------------------------------|
+| d      | dired-flag-file-deletion     |                                       |
+| x      | dired-do-flagged-delete      |                                       |
+| DEL    | dired-unmark-backward        | 在标记的下一行使用                    |
+| u      | dired-unmark                 | 在标记行使用                          |
+| U      | dired-unmark-all-marks       |                                       |
+| m      | dired-mark                   |                                       |
+| t      | dired-toggle-marks           |                                       |
+| % d    | dired-flag-files-regexp      |                                       |
+| % m    | dired-mark-files-regexp      |                                       |
+|--------+------------------------------+---------------------------------------|
+| M      | dired-do-chmod               |                                       |
+| O      | dired-do-chown               |                                       |
+| G      | dired-do-chgrp               |                                       |
+| H      | dired-do-hardlink            |                                       |
+| S      | dired-do-symlink             |                                       |
+| C      | dired-do-copy                |                                       |
+| R      | dired-do-rename              | mv                                    |
+| D      | dired-do-delete              |                                       |
+|--------+------------------------------+---------------------------------------|
+| Z      | dired-do-compress            | 解压或压缩, **TODO**                  |
+| RET    | dired-find-file              | 已重写, 详见 .emacs                   |
+| o      | dired-find-file-other-window |                                       |
+| ^      | dired-up-directory           |                                       |
+| <      | dired-prev-dirline           |                                       |
+| >      | dired-next-dirline           |                                       |
+| +      | dired-create-directory       |                                       |
+
+标记命令都能加数字前缀, 表示运行多次, 不实用, 直接选中区域再执行相应命令更方便
+| 一些可能有用的变量        |
+|---------------------------|
+| dired-recursive-copies    |
+| dired-recursive-deletes   |
+| delete-by-moving-to-trash |
+| dired-sort-inhibit        |
+
+* list-buffers
+| 快捷键  | 命令                          | 说明                         |
+|---------+-------------------------------+------------------------------|
+| C-x C-b | list-buffers                  |                              |
+|---------+-------------------------------+------------------------------|
+| d       | Buffer-menu-delete            | 这块和 dired-mode 完全相同   |
+| x       | Buffer-menu-execute           |                              |
+| u       | Buffer-menu-unmark            |                              |
+| DEL     | Buffer-menu-backup-unmark     |                              |
+| o       | Buffer-menu-other-window      |                              |
+| g       | revert-buffer                 |                              |
+|---------+-------------------------------+------------------------------|
+| S       | tabulated-list-sort           | 按光标所在的列排序, **大写** |
+| T       | Buffer-menu-toggle-files-only | 仅显示有对应文件的 buffer    |
+
+可以类比 dired-mode, 其他功能不常用, 还容易和记混, 不推荐使用
+
+* calendar
+| 快捷键 | 命令                     | 说明                                 |
+|--------+--------------------------+--------------------------------------|
+|        | calendar                 |                                      |
+|--------+--------------------------+--------------------------------------|
+| C-b/f  |                          | 前 / 后一天                          |
+| C-p/n  |                          | 前 / 后一星期的当天                  |
+| C-a/e  |                          | 星期的第一天 / 最后一天              |
+| M-</>  |                          | 年的第一天 / 最后一天                |
+| M/C-v  |                          | 前 / 后三个月                        |
+| x      |                          | 高亮节假日                           |
+| u      |                          | 取消高亮                             |
+| .      |                          | 定位到今天                           |
+| h      | calendar-cursor-holidays |                                      |
+| a      | calendar-list-holidays   |                                      |
+| q      |                          | 已重新绑定为退出并关闭 window         |
+| M-=    |                          | 先 C-space 标记, 计算天数 (包括头尾) |
+|--------+--------------------------+--------------------------------------|
+| M-a/e  |                          | 月的第一天 / 最后一天                |
+| M-{/}  |                          | 上 / 下一个月的当天                  |
+
+* commands summary
+** help
+| 快捷键 | 命令               | 说明     |
+|--------+--------------------+----------|
+| C-h    | help-command       |          |
+| C-h b  | describe-bindings  |          |
+| C-h f  | describe-function  |          |
+| C-h v  | describe-variable  |          |
+| C-h m  | describe-mode      |          |
+| C-h k  | describe-key       |          |
+| C-h t  | help-with-tutorial |          |
+| C-h i  | info               | 帮助文档 |
+
+** file handling
+| 快捷键  | 命令                    |
+|---------+-------------------------|
+| C-x C-f | find-file               |
+| C-x C-r | find-file-read-only     |
+| C-x C-q | read-only-mode          |
+| C-x C-v | find-alternate-file     |
+| C-x C-s | save-buffer             |
+| C-x s   | save-some-buffer        |
+| C-x k   | kill-buffer             |
+| C-x C-c | save-buffers-kill-emacs |
+| C-x C-w | write-file              |
+|---------+-------------------------|
+| C-x i   | insert-file             |
+
+** cursor movement
+| 快捷键 | 命令                | 说明                        |
+|--------+---------------------+-----------------------------|
+| C-p    | previous-line       |                             |
+| C-n    | next-line           |                             |
+| C-b    | backward-char       |                             |
+| C-f    | forward-char        |                             |
+| M-b    | backward-word       |                             |
+| M-f    | forward-word        |                             |
+| C-a    | beginning-of-line   |                             |
+| C-e    | end-of-line         |                             |
+| M-<    | beginning-of-buffer |                             |
+| M->    | end-of-buffer       |                             |
+| C-v    | scroll-up           |                             |
+| M-v    | scroll-down         |                             |
+| C-M-n  | forward-list        | forward across parentheses  |
+| C-M-p  | backward-list       | backward across parentheses |
+| C-l    | recenter            |                             |
+| M-g g  | goto-line           |                             |
+|--------+---------------------+-----------------------------|
+| M-g c  | goto-char           | the position of buffer      |
+| M-a    | backward-sentence   |                             |
+| M-e    | forward-sentence    |                             |
+| M-}    | forward-paragraph   |                             |
+| M-{    | backward-paragraph  |                             |
+| C-x [  | backward-page       |                             |
+| C-x ]  | forward-page        |                             |
+
+** prefix
+| 快捷键  | 命令               | 说明                 |
+|---------+--------------------+----------------------|
+| M-NUM   | digit-argument     |                      |
+| C-NUM   | digit-argument     |                      |
+| C--     | negative-argument  |                      |
+| C-u NUM | universal-argument | support all platform |
+
+** delete copy and paste
+| 快捷键  | 命令                    |
+|---------+-------------------------|
+| C-y     | yank                    |
+| M-y     | yank-pop                |
+| C-w     | kill-region             |
+| M-w     | kill-ring-save          |
+| C-d     | delete-char             |
+| M-d     | kill-word               |
+| DEL     | delete-backward-char    |
+| M-DEL   | backward-kill-word      |
+| C-k     | kill-line               |
+|---------+-------------------------|
+| M-k     | kill-sentence           |
+| C-x DEL | backward-kill-sentence  |
+|         | kill-paragraph          |
+|         | backward-kill-paragraph |
+
+** search and replace
+| 快捷键  | 命令                    |
+|---------+-------------------------|
+| C-s     | isearch-forward         |
+| C-r     | isearch-backward        |
+| C-M-s   | isearch-forward-regexp  |
+| C-M-r   | isearch-backward-regexp |
+| ENTER   | isearch-exit            |
+| C-g     | keyboard-quit           |
+| DEL     | isearch-delete-char     |
+|         | replace-string          |
+|         | replace-regexp          |
+| M-%     | query-replace           |
+| C-M-%   | query-replace-regexp    |
+|---------+-------------------------|
+| C-s C-w | isearch-yank-word       |
+| C-s C-y | isearch-yank-line       |
+| C-s M-y | isearch-yank-kill       |
+| C-s C-s | isearch-repeat-forward  |
+| C-r C-r | isearch-repeat-backward |
+
+** regions
+| 快捷键         | 命令                    | 说明              |
+|----------------+-------------------------+-------------------|
+| C-Space or C-@ | set-mark-command        |                   |
+| C-x C-x        | exchange-point-and-mark |                   |
+| C-w            | kill-region             |                   |
+| M-w            | kill-ring-save          |                   |
+| M-@            | mark-word               | from current char |
+|                | mark-end-of-paragraph   | from current char |
+| M-h            | mark-paragraph          |                   |
+| C-x C-p        | mark-page               |                   |
+| C-x h          | mark-whole-buffer       |                   |
+
+** buffers and windows
+| 快捷键  | 命令                        | 说明                |
+|---------+-----------------------------+---------------------|
+| C-x b   | switch-to-buffer            |                     |
+| C-x C-b | list-buffers                | see * list-buffers  |
+|---------+-----------------------------+---------------------|
+| C-x 0   | delete-window               |                     |
+| C-x 1   | delete-other-windows        |                     |
+| C-x 2   | split-window-below          |                     |
+| C-x 3   | split-window-right          |                     |
+| C-x o   | other-window                |                     |
+|---------+-----------------------------+---------------------|
+|         | balance-windows             |                     |
+|         | shrink-window               | usually with prefix |
+|         | shrink-window-horizontally  |                     |
+|         | enlarge-window              |                     |
+|         | enlarge-window-horizontally |                     |
+
+** +frames (i use emacs always in one frame)+
+| 快捷键    | 命令                            |
+|-----------+---------------------------------|
+| C-x 5 C-o | display-buffer-other-frame      |
+| C-x 5 C-f | find-file-other-frame           |
+| C-x 5 f   | find-file-other-frame           |
+| C-x 5 b   | switch-to-buffer-other-frame    |
+| C-x 5 o   | other-frame                     |
+| C-x 5 r   | find-file-read-only-other-frame |
+| C-x 5 b   | switch-to-buffer-other-frame    |
+| C-x 5 f   | find-file-other-frame           |
+| C-x 5 0   | delete-frame                    |
+| C-x 5 1   | delete-other-frames             |
+|-----------+---------------------------------|
+| C-x 5 2   | make-frame-command              |
+| C-x 5 d   | dired-other-frame               |
+| C-x 5 m   | compose-mail-other-frame        |
+| C-x 5 .   | find-tag-other-frame            |
+
+** encoding
+| 快捷键         | 命令                             | 特殊说明             |
+|----------------+----------------------------------+----------------------|
+| C-x RET r 编码 | revert-buffer-with-coding-system | 按该编码重新打开文件 |
+| C-x RET f 编码 | set-buffer-file-coding-system    | 按该编码重新保存     |
+
+* elisp
+** 基本概念
+*** lisp 大小写不敏感, 但 elisp 不是
+
+*** (consp OBJECT)
+判断是否为 cons cell. 形如 (x . y) 的称为 cons cell\\
+虽然为了编程方便有 (car nil) => nil 和 (cdr nil) => nil, 但 nil 不是 cons cell\\
+(cons nil nil) => (nil) 是 cons cell
+
+*** (atom OBJECT)
+判断是否为 atom. 不是 cons cell 的就是 atom, 当然包括 nil
+
+*** (listp nil) => t
+
+*** s-expression
+s-expression is classically defined inductively as
+1. an atom, or
+2. an expression of the form (x . y) where x and y are s-expressions.
+所以所有的 lisp OBJECT 都是 s-expression?
+
+*** quote
+nil () '()
+
+*** 求值模型
+1. substitution model\\
+   To apply a compound procedure to arguments, evaluate the body of the procedure with each formal parameter replaced by the corresponding argument.\\
+2. environment model\\
+   定义太啰嗦, 相当于说了如何加一个词法作用域\\
+elisp 默认不开启词法作用域, 开启需要在文件头部加 -*- lexical-binding: t -*-\\
+或者 (setq lexical-binding t)
+
+** 语法
+*** 基本
+| quote | (quote ARG)    |
+| car   | (car LIST)     |
+| cdr   | (cdr LIST)     |
+| cons  | (cons CAR CDR) |
+
+*** print
+| message | (message FORMAT-STRING &rest ARGS)    | to *Message* buffer |
+| format  | (format STRING &rest OBJECTS)         |                     |
+| print   | (print OBJECT &optional PRINTCHARFUN) |                     |
+| prin1   |                                       | no newline around   |
+| princ   |                                       | for human reading   |
+
+*** math
+| 函数      | 用法                             |                            |
+|-----------+----------------------------------+----------------------------|
+| expt      | (expt ARG1 ARG2)                 | ARG1 ** ARG2               |
+| exp       | (exp ARG)                        | e ** ARG                   |
+| log       | (log ARG &optional BASE)         | default natural            |
+| +         |                                  |                            |
+| -         |                                  |                            |
+| *         |                                  |                            |
+| /         |                                  | 参数都是整型的话, 返回整型 |
+| %         |                                  |                            |
+| mod       |                                  |                            |
+| 1+        |                                  |                            |
+| 1-        |                                  |                            |
+|           |                                  | 各种三角/反三角函数        |
+|-----------+----------------------------------+----------------------------|
+| integerp  |                                  |                            |
+| floatp    |                                  |                            |
+| numberp   |                                  | number-or-marker-p         |
+| isnan     |                                  | 不能直接用 =               |
+|           | (= 1e+INF 1e+INF) => t           |                            |
+| frexp     | (frexp X)                        | (s . e) 详见下             |
+| ldexp     | (ldexp SGNFCAND EXPONENT)        | 上述函数的反函数           |
+|-----------+----------------------------------+----------------------------|
+| truncate  | (truncate ARG &optional DIVISOR) | 靠近 0, ARG/DIVISOR        |
+| floor     |                                  |                            |
+| ceiling   |                                  |                            |
+| round     |                                  |                            |
+|-----------+----------------------------------+----------------------------|
+| ftruncate |                                  |                            |
+| ffloor    |                                  |                            |
+| fceiling  |                                  |                            |
+| fround    |                                  |                            |
+|-----------+----------------------------------+----------------------------|
+| random    | (random &optional LIMIT)         |                            |
+
+特殊值 most-positive-fixnum, most-negative-fixnum, 1e+INF, -1e+INF, 0eNaN,\\
+frexp 和 ldexp 通过式子 x = s * 2 ** e 计算,\\
+其中 0.5 <= |s| < 1, e 是非负整数, 易知唯一性,\\
+例外 0, 1e+INF, -1e+INF, 0e+NaN 的 s 为它们本身, e = 0\\
+
+| float-sup.el       | 定义了几个常用数学常量   |
+|--------------------+--------------------------|
+| float-e            | (exp 1)                  |
+| float-pi           | (* 4 (atan 1))           |
+| degrees-to-radians | 角度弧度转换常量和 macro |
+| radians-to-degrees |                          |
+
+其他 (向量) 函数需要 `calc-math.el'
+
+*** logical
+(booleanps OBJECT)\\
+Return t if OBJECT is one of the two canonical boolean values: t or nil. Otherwise, return nil.\\
+lisp 中只有 nil (即 (), '()) 是假, 其余均为真 (t)\\
+'() 这个在不求值时和另两个不一样 (quote '()) => 'nil
+| eq     | same object          | 相等整型是 same object             |
+| eql    | 同上, 多一个         | **都是** 浮点型相等也返回 t        |
+| equal  | same type same value |                                    |
+| equalp | 同上, 多一个         | **cl.el** 整型和浮点型相等也返回 t |
+
+| and | (and CONDITIONS...) |                         |
+| or  | (or CONDITIONS...)  |                         |
+| not | (not OBJECT)        | null 的别名             |
+| =   |                     | 只用于比较数字或 marker |
+| /=  |                     | 同上                    |
+| <   |                     |                         |
+| <=  |                     |                         |
+| >   |                     |                         |
+| >=  |                     |                         |
+
+*** control flow
+#+BEGIN_SRC emacs-lisp
+;;;;;;;;;;;;;;;;;;;; Sequencing
+(progn
+  expr1
+  expr2
+  ...)  ; 用于那些只能放一个表达式的地方, 比如 if 的某个分支
+; prog1 prog2 区别与 progn 返回最后一个表达式的值, 返回的是第一/二个表达式的值
+
+;;;;;;;;;;;;;;;;;;;; Conditionals
+(if test
+    then
+  else)  ; else 可以不写即 nil
+
+; when unless 是 if 的语法糖
+
+(cond (test1 body1)
+      (test2 body2)
+      ...
+      (t final-body))
+
+;;;;;;;;;;;;;;;;;;;; loop 表达式的值都是 nil
+(while test
+  body)  ;
+
+(dolist (var list [result])
+  body)  ; dolist 通过 macro 实现
+
+(defun my-reverse-loop (lst)
+  (let (value)
+    (dolist (elem lst value)
+      (setq value (cons elem value)))))
+
+(dotimes (var count [result])
+  body)
+
+;;;;;;;;;;;;;;;;;;;; nonlocal exits (循环外 'break, 循环内最外 'continue 模拟)
+; 官方文档有一个例子还不是很懂
+; 还有错误处理 (try/except) 很繁琐, 暂时不用
+(catch TAG BODY ...)
+(throw TAG VALUE)
+(catch 'foo
+  ...
+  (throw 'foo t)
+  ...
+  )
+#+END_SRC
+
+**** generators (TODO)
+| iter-defun      |
+| iter-lambda     |
+| iter-yield      |
+| iter-yield-from |
+| iter-do         |
+|-----------------|
+| iter-next       |
+| iter-close      |
+
+*** variable
+| defvar   | (defconst SYMBOL &optional ININVALUE DOCSTRING) |
+| defconst | (defconst SYMBOL INITVALUE [DOCSTRING])         |
+| setq     |                                                 |
+|----------+-------------------------------------------------|
+| let      |                                                 |
+| let*     |                                                 |
+
+*** function
+| functionp |                                                    |
+| defun     | byte-run.el --- byte-compiler support for inlining |
+| lambda    | subr.el                                            |
+| defun*    | cl.el 支持关键字参数                               |
+| defalias  | (defalias SYMBOL DEFINITION &optional DOCSTRING)   |
+| defmacro  |                                                    |
+
+#+BEGIN_SRC emacs-lisp
+(defun* test (&key x y)
+  (+ x y))
+(test :x 1 :y 2)
+#+END_SRC
+
+由于求值模型, 在函数需要通过求值得出时需要其他调用方法, 如下:\\
+(funcall FUNCTION &rest ARGUMENTS)\\
+
+(apply FUNCTION &rest ARGUMENTS)\\
+(listp last-arg) => t, 这其实提供了一种参数列表展开的方法
+
+*** higher-order function
+1. (mapcar FUNCTION SEQUENCE)
+2. (mapc FUNCTION SEQUENCE) for side effects only, don't accumulate the results, 返回原始的 SEQUENCE\\
+
+来自 cl.el 的高阶函数
+1. (reduce FUNCTION SEQ [KEYWORD VALUE]...)\\
+   Reduce two-argument FUNCTION across SEQ.\\
+   Keywords supported:  :start :end :from-end :initial-value :key\\
+2. (map TYPE FUNCTION SEQUENCE...)\\
+   虽然名字最简单, 但最好不要用
+#+BEGIN_SRC emacs-lisp
+(reduce (lambda (x y) (cons y x)) (nreverse '(3 4 5)) :initial-value '(6 7))
+#+END_SRC
+
+*** types
+**** integer type
+**** floating-point type
+**** character type is nothing more than an integer
+?Q => 81 ?q => 113 ?\0 => 0 ?\\ => 92 ?汉 => 27721 ?\uffff => 65535\\
+一般不用, 通常是为了操作 string
+| ctrl  | ?\C- ?\^ | 由于历史原因 DEL 表示为 ?\G-? |
+| meta  | ?\M-     | 这些都能联用混用              |
+| shift | ?\S-     |                               |
+|-------+----------+-------------------------------|
+| super | ?\s-     | x window modifier             |
+| alt   | ?\A-     |                               |
+| hyper | ?\H-     |                               |
+
+**** symbol type
+Finding or adding a symbol with a certain name is called interning it,\\
+and the symbol is then called an interned symbol.\\
+一个 symbol 可以同时对应一个值和一个函数
+| (symbolp (lambda () (print "hello world!"))) => nil |
+| (symbolp 1.2) => nil                                |
+| (symbolp "hello world!")                            |
+| (symbolp 'xxxxxxxxxxxxxxxxxxxx) => t                |
+几个特殊 symbol (constant symbol 不能被赋值) keywords (keywordp OBJECT)?
+| (symbol-name ()) => "nil" |
+| (symbol-value t) => t     |
+| (symbol-value nil) => nil |
+setq 只能绑定值 value, 函数直接放到 top-level 求值其实是调用 symbol-value\\
+要用 defalias 来绑定函数, 按求值模型求值\\
+
+通过函数名字符串获取函数 (symbol) 或者生成一个 intern symbol:\\
+(intern STRING &optional OBARRAY)\\
+
+
+| symbolp         | symbol has four components (or cells) as follows:   |
+|-----------------+-----------------------------------------------------|
+| symbol-name     | return SYMBOL's name, a string. Cannot be changed   |
+| symbol-value    | return SYMBOL's value.  Error if that is void       |
+| symbol-function | return SYMBOL's function definition, or nil if void |
+| symbol-plist    | return SYMBOL's property list                       |
+|-----------------+-----------------------------------------------------|
+| make-symbol     | unintern symbol, not `eq' even name is the same     |
+| intern          | (intern STRING &optional OBARRAY), return symbol    |
+| intern-soft     | return nil if not in OBARRAY, can test if interned  |
+| unintern        | delete the symbol, if any                           |
+| mapatoms        | calls function once with each symbol, return nil    |
+
+#+BEGIN_SRC emacs-lisp
+(defalias 'not 'null)
+(eq (make-symbol "1") (make-symbol "1")) => nil
+(let ((count 0))
+  (mapatoms (lambda (sym) (setq count (1+ count))))
+  (print count))
+#+END_SRC
+
+**** sequence type
+| sequencep | (or (listp x) (arrayp x)) |
+| listp     |                           |
+| arrayp    |                           |
+|-----------+---------------------------|
+| length    |                           |
+An association list or alist is a specially-constructed list whose elements are cons cells.
+
+Array is fixed-length sequences. They are further subdivided into\\
+strings, vectors, char-tables and bool-vectors
+
+| string           |                                      |           |
+|------------------+--------------------------------------+-----------|
+| concat           | (concat &rest SEQUENCES)             |           |
+| substring        | (substring STRING FROM &optional TO) | 同 python |
+| string-equal     | string=                              |           |
+| string-lessp     | string<                              |           |
+| stringp          |                                      |           |
+| string-match     |                                      |           |
+| string-to-number |                                      |           |
+| number-to-string |                                      |           |
+
+** 帮助
+| describe-bindings |
+| describe-function |
+| describe-variable |
+
+* jedi for python
+** 安装 git
++ debian
+  #+BEGIN_SRC sh
+sudo apt-get install git
+  #+END_SRC
++ mac os x
+
+  在安装 homebrew 时直接选择安装 git 即可, 也可通过源代码安装
+
+** 安装 pip
++ debian
+  #+BEGIN_SRC sh
+sudo apt-get install python-pip
+  #+END_SRC
++ mac os x
+  #+BEGIN_SRC sh
+sudo easy_install pip
+  #+END_SRC
+
+** 改用国内的源
+添加或修改 ~/.pip/pip.conf 文件, 内容如下:
+#+BEGIN_EXAMPLE
+[global]
+timeout = 60
+index-url = http://pypi.douban.com/simple
+--trusted-host = pypi.douban.com
+format = columns
+#+END_EXAMPLE
+
+** 安装 virtualenv
+#+BEGIN_SRC sh
+sudo pip install virtualenv
+#+END_SRC
+
+** 安装 el-get
+上面的准备工作完成, .emacs 中添加下述代码, 启动 emacs 等待安装完成
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+(unless (require 'el-get nil 'noerror)
+  (with-current-buffer
+      (url-retrieve-synchronously
+       "https://raw.github.com/dimitri/el-get/master/el-get-install.el")
+    (goto-char (point-max))
+    (eval-print-last-sexp)))
+(el-get 'sync)
+#+END_SRC
+
+** 安装 exec-path-from-shell (只有 mac 需要此步骤)
+#+BEGIN_EXAMPLE
+M-x el-get-install RET exec-path-from-shell
+#+END_EXAMPLE
+在 el-get 路径被 load 之后, 添加
+#+BEGIN_SRC emacs-lisp
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+#+END_SRC
+
+** 安装 jedi
+#+BEGIN_EXAMPLE
+M-x el-get-install RET jedi
+M-x jedi:install-server
+#+END_EXAMPLE
+
+** 重要说明
+其实如果是 linux 的话, 直接复制 .emacs.d 文件到 HOME 即可.\\
+如果提示 python environment 的问题, 删除 emacs.d/.python-environments 之后重新安装 jedi server 即可
+
+** 添加 jedi 的搜索路径到 .emacs
+#+BEGIN_SRC emacs-lisp
+(setq jedi:server-args
+      '("--sys-path" "/usr/lib/python3/dist-packages"
+	"--sys-path" "/usr/local/lib/python3.4/dist-packages"
+	"--sys-path" "/home/wfj/packages"))
+#+END_SRC
+
+** 快捷键和命令
+| 快捷键  | 命令                            | 特殊说明                      |
+|---------+---------------------------------+-------------------------------|
+| .       | jedi:dot-complete               | (setq jedi:complete-on-dot t) |
+| <C-tab> | jedi:complete                   |                               |
+| C-c ,   | jedi:goto-definition-pop-marker | forward                       |
+| C-c .   | jedi:goto-definition            | backward                      |
+| C-c ?   | jedi:show-doc                   |                               |
+| C-c d   | jedi:show-doc                   | (setq jedi:setup-keys t)      |
+|---------+---------------------------------+-------------------------------|
+| C-,     | jedi:goto-definition-pop-marker | not recommend                 |
+| C-.     | jedi:goto-definition            | not recommend                 |
+
+* for windows
+在如下注册表中创建 GNU\Emacs\HOME (字符串值, 如: E:\emacs-24.5)
+#+BEGIN_EXAMPLE
+HKEY_LOCAL_MACHINE\SOFTWARE\
+HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\ (if x64)
+#+END_EXAMPLE
+* 如果你也用 fcitx,
+请在 fcitx configuration 中清空所有非必要的快捷键\\
+那些快捷键比 emacs 拥有更高的优先级\\
+一直以为是系统的问题, 机缘巧合才找到问题根源\\
+比如 C-5, C-M-p, C-M-s C-M-b 等等\\
+顺便整理下必须的 addon:
+| DBus support       |       |
+| X11 support        |       |
+| Fcitx DBus Fronted |       |
+| Keyboard Layout    | 英文  |
+| Fcitx XIM Frontend | emacs |
+| Remote             |       |
+|--------------------+-------|
+| Clipboard          |       |
+| Spell              |       |
+| LibPinyin          |       |
+| Classic            | 皮肤  |
