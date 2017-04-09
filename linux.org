@@ -146,7 +146,7 @@ The key's randomart image is:
 ssh -T git@github.com # 测试
 #+END_SRC
 
-*** 创建版本库
+*** 创建版本库 (repository)
 cd 到要作为仓库的目录, 最好是新建的空目录
 #+BEGIN_SRC sh
 git init
@@ -157,16 +157,36 @@ git remote add origin git@github.com:wufangjie/learning-notes
 #+END_SRC
 
 *** 提交文件到版本库
-最好用纯文本文件, 用 UTF-8 编码
 #+BEGIN_SRC sh
-git add git.org # 添加文件内容至索引
-git commit -m "some message" # 记录变更到版本库
+git add git.org # 把文件修改添加到暂存区 (stage)
+git commit -m "some message" # 把暂存区的所有内容提交到版本库的当前分支
 git push origin master # 提交到远程 github 仓库
 #+END_SRC
 
-*** pull
+*** diff
+用 M-x vc-ediff 代替
+| Git diff                                   | 比较工作区和暂存区的区别 |
+| git diff file                              | 同上, 对某一文件         |
+| git diff -cached                           | 比较暂存区和版本库的区别 |
+| git diff -cached file                      | 同上, 对某一文件         |
+| git diff comment_id1 comment_id2           | 查看某两个版本之间的差异 |
+| git diff comment_id1:file comment_id2:file | 同上, 对某一文件         |
+
+*** 其他常用命令
 #+BEGIN_SRC sh
+git clone url
+git status
+git reset file # unadd
+git checkout -- file # 用暂存区 (没有则版本库) 的版本替换工作区的版本
+git rm
+git mv
 git pull https://github.com/wufangjie/learning-notes master
+git pull origin master
+
+git reflog # list commit_id and commit message
+git reset --soft commit_id
+git reset --hard commit_id
+git log [commit_id] # show commit logs
 #+END_SRC
 
 ** file manager
