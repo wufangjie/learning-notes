@@ -1,0 +1,449 @@
+#+title: python
+#+author: wfj
+* pythonic
+** with
+*** with protocol
+用法和例子
+| * pythonic ** magitc methods *** with protocol |
+| * packages ** mysql-connector-python-rf        |
+
+*** contextlib
+直接看源代码
+| contextmanager |                                        |
+| closing        | 要有 .close 属性                       |
+| suppress       | 用来忽略异常, 参数是异常或异常的迭代器 |
+contextmanager 装饰只 yield 一次的 generator, 进行分上下文处理,\\
+只是好像用作装饰器的时候 args 和 kwds 没法用?\\
+urllib.request.urlopen 竟然不会在退出时关闭, 看了官网的例子才明白\\
+
+** decorator
+In Python, decorators are, in simplest terms, functions (or any callable objects) that take as input a set of optional arguments and a function or class, and return a function or class\\
+以函数为参数返回一个新的函数的装饰器, 新函数的 __name__, __doc__, __annotations__ 等一些属性会是新函数的, 一般使用 functools.wraps 来解决这个问题, 也可以自己简单实现如下:
+#+BEGIN_SRC python
+def my_wrap(func):
+    def func3(func2):
+        func2.__name__ = func.__name__
+        func2.__doc__ = func.__doc__
+        func2.__annotations__ = func.__annotations__
+        func2.__wrapped__ = func
+        return func2
+    return func3
+#+END_SRC
+注意 __wrapped__, 更高级的用法需要研究 descriptor protocol
+
+** magic methods
+*** iterator protocol
+Python’s iterator protocol requires __iter__() to return a special iterator object that implements a __next__() operation and uses a StopIteration exception to signal
+completion.\\
+特别地, __iter__() 返回一个 generator
+#+BEGIN_SRC python
+class ListNode(object):
+    def __init__(self, x, next=None):
+        self.val = x
+        self.next = next
+
+    def __iter__(self):
+        node = self
+        while node:
+            yield node
+            node = node.next
+
+a = ListNode(1, ListNode(2, ListNode(3)))
+for node in a:
+    print(node.val)
+#+END_SRC
+
+*** with protocol
+自定义实现了 __enter__ and __exit__ 的类, 分别用于进入和退出时的操作
+
+*** descriptor protocol
+| descr.__get__(self, obj, type=None) --> value |
+| descr.__set__(self, obj, value) --> None      |
+| descr.__delete__(self, obj) --> None          |
+摘自官方文档 howto-descriptor\\
+The default behavior for attribute access is to get, set, or delete the attribute from an object's dictionary. For instance, a.x has a lookup chain starting with a.__dict__['x'], then type(a).__dict__['x'], and continuing through the base classes of type(a) excluding metaclasses. If the looked-up value is an object defining one of the descriptor methods, then Python may override the default behavior and invoke the descriptor method instead.\\
+Descriptors are a powerful, general purpose protocol. They are the mechanism behind properties, methods, static methods, class methods, and super().\\
+我的理解是 descriptor 的对象是作为类的属性 (具体地说是在类的 __dict__ 中, 注意是类而不是对象) 存在, 基本不在别处使用, 除非手动调用 a.__get__(a, type(a))\\
+根据 __get__, __set__, __delete__ 设置的不同, 分为 non-data descriptor (no __set__), data descriptor (特别地, read-only data descriptor)\\
+**** 实际调用过程
+#+BEGIN_SRC python
+type(b).__dict__['x'].__get__(b, type(b)) # b.x
+B.__dict__['x'].__get__(None, B) # B.x
+# note b.x = other, del b.x do not call magic methods
+#+END_SRC
+type.__getattribute__ 的一种实现方式, 如下:
+#+BEGIN_SRC python
+def __getattribute__(self, key):
+    v = object.__getattribute__(self, key)
+    if hasattr(v, '__get__'):
+        return v.__get__(None, self)
+    return v
+#+END_SRC
+这里就有一个先有鸡还是现有蛋的哲学问题了
+
+**** 重点说明
+1. descriptors are invoked by the __getattribute__() method
+2. overriding __getattribute__() prevents automatic descriptor calls
+3. object.__getattribute__() and type.__getattribute__() make different calls to __get__().
+4. data descriptors always override instance dictionaries.
+5. non-data descriptors may be overridden by instance dictionaries.
+
+其中, 45点还是不明白, 与做实验的结果不符, 也许没完全领会, 以后再说
+
+**** 先看一下这些函数的基本运作方式
+#+BEGIN_SRC python
+class Des:
+    def __init__(self, x):
+        self.x = x
+
+    def __get__(self, obj, type):
+        print('get:\nself={},\nobj={},\ntype={}'.format(self, obj, type))
+        return self.x
+
+    def __set__(self, obj, value):
+        print('set:\nself={},\nobj={},\nvalue={}'.format(self, obj, value))
+        self.x = value
+
+    def __delete__(self, obj):
+        print('del:\nself={},\nobj={}'.format(self, obj))
+
+class UseDes:
+    d = Des('hello')
+
+a = UseDes()
+UseDes.d
+a.d
+a.d = 'world' # UseDes.d changed to 'world'
+del a.d
+# set or delete UseDes.d did not call the magic methods
+#+END_SRC
+
+**** property
+#+BEGIN_SRC python
+property(fget=None, fset=None, fdel=None, doc=None) -> property attribute
+#+END_SRC
+getter, setter, deleter 是装饰器, 接受函数参数来给所属的对象的对应属性赋值, 返回一个修改过的对象
+#+BEGIN_SRC python
+class MyProperty:
+    def __init__(self, fget=None, fset=None, fdel=None):
+        self.fget = fget
+        self.fset = fset
+        self.fdel = fdel
+
+    def __get__(self, obj, type=None):
+        if obj is None:
+            return self
+        elif self.fget is None:
+            raise AttributeError('cannot read')
+        return self.fget(obj)
+
+    def __set__(self, obj, value):
+        if self.fset is None:
+            raise AttributeError('cannot assign')
+        self.fset(obj, value)
+
+    def __delete__(self, obj):
+        if self.fdel is None:
+            raise AttributeError('cannot delete')
+        self.fdel(obj)
+
+    def getter(self, fget):
+        self.fget = fget
+        return self
+
+    def setter(self, fset):
+        self.fset = fset
+        return self
+
+    def deleter(self, fdel):
+        self.fdel = fdel
+        return self
+#+END_SRC
+
+**** methods, class methods, static methods
+#+BEGIN_SRC python
+# 以下都是可以当作装饰器使用的, 使得普通的函数变成类的函数, 只是为了方便理解
+# python 定义在类中的 function 就直接是 method 了, 官方说明是 types.MethodType
+# 即手动定义了一个最简单的 method, 再 type(metod), 用了绑定函数
+class Method:
+    def __init__(self, f):
+        self.f = f
+
+    def __get__(self, obj, type=None):
+        if obj is None:
+            return self.f
+        def newfunc(*args, **kwargs):
+            return self.f(obj, *args, **kwargs)
+        return newfunc
+
+class ClassMethod:
+    def __init__(self, f):
+        self.f = f
+
+    def __get__(self, obj, klass=None):
+        if klass is None:
+            klass = type(obj)
+        def newfunc(*args, **kwargs):
+            return self.f(klass, *args, **kwargs)
+        return newfunc
+
+class StaticMethod:
+    def __init__(self, f):
+        self.f = f
+
+    def __get__(self, obj, type=None):
+        return self.f
+#+END_SRC
+
+**** super
+python 官方一直在改, 有很多不确定的东西, 有时间再深入了解
+
+*** others
+| in       | __contains__      |                                 |
+| len      | __len__           |                                 |
+| reversed | __reversed__      |                                 |
+| next     | __next__          |                                 |
+| str      | __str__           |                                 |
+| repr     | __repr__          |                                 |
+| bool     | __bool__          |                                 |
+| hash     | __hash__          |                                 |
+| dir      | __dir__           |                                 |
+|          | __sizeof__        | sys.getsizeof = __sizeof__ + gc |
+|----------+-------------------+---------------------------------|
+|          | __dict__          | 是属性, 不是函数, 详见 class    |
+|          | __doc__           |                                 |
+|          | __init__          |                                 |
+|          | __new__           | low-level, 一般不手动调用       |
+| type?    | __class__         |                                 |
+|          | __subclasshook__  |                                 |
+|----------+-------------------+---------------------------------|
+|          | __delattr__       | attr 相关函数中不要使用自身     |
+|          | __getattr__       | 属性不存在时, 才会起作用        |
+|          | __getattribute__  |                                 |
+|          | __setattr__       |                                 |
+|          | __delitem__       |                                 |
+|          | __getitem__       |                                 |
+|          | __setitem__       |                                 |
+|----------+-------------------+---------------------------------|
+|          | eq ge gt le lt ne |                                 |
+|          | 其他数学逻辑函数  |                                 |
+|----------+-------------------+---------------------------------|
+|          | __format__        | 一般都用字符串现成的            |
+|          | __copy__          |                                 |
+|          | __deepcopy__      |                                 |
+|          | __reduce__        | helper for pickle               |
+|          | __reduce_ex__     | helper for pickle               |
+|----------+-------------------+---------------------------------|
+|          | __file__          | 非对象                          |
+|          | __name__          |                                 |
+
+** 合理使用 generator 和 yield [from], 而不是各种 comprehension
+() 和 [] 的区别, 少占内存效率会高一些, 如果有 break 就高更多
+
+** sorted 的稳定性
+In early python-versions, the sort function implemented a modified version of quicksort. However, it was deemed unstable and as of 2.3 they switched to using an adaptive mergesort algorithm.
+
+** 特殊类型判断
+1. isinstance 结合 collections 模块
+2. issubclass
+3. hasattr
+4. callable
+
+** speed up tips
++ dict 和 set 都是 hashtable 实现的, 查找元素的时间复杂度是O(1)
++ 使用 if is True 比 if == True 快很多
++ while 1 比 while True 更快 (仅限python2), 因为 True 是一个全局变量, 而非关键字
++ 使用 ** 而不是 pow, 约 10 倍
++ list 的删除是费时的, 如果不介意顺序, 可以把尾部的元素赋值给要删除的位置, 再 pop
+
+** others
+1. star expression 其实只需要是 iterator 就能 unpack
+2. coding style (pep8)
+
+* data structure
+| list              |
+| dict              |
+| map               |
+| set               |
+| collections.deque |
+| heapq             |
+
+* python
+** 变量空间
+| globals                   |
+| locals                    |
+| sys._getframe().f_globals |
+| sys._getframe().f_locals  |
+
+** frozenset
+frozenset() -> empty frozenset object
+frozenset(iterable) -> frozenset object
+不可变集合, 无序, 有 hash 值, 用法之一 utils.memo_with_kwargs
+
+** class
++ if an object does not have a __dict__, then you can’t assign arbitrary attributes to it.
++ 类变量直接写在类中 (保存在类的 __dict__ 中), 而实例变量的赋值一般写在实例方法中 self.xx (保存在对象的 __dict__ 中)
++ staticmethod, 可以类调用, 也可以实例调用, 第一个参数为 cls
++ classmethod, 可以类调用, 也可以实例调用, 用法同类外函数
++ property, 详见 descriptor protocol
+
+** scope
+0. dynamic scoping 与 lexical scoping 的区别, 其实就是运行时上下文和定义时上下文, 详见 <王垠：Lisp 已死，Lisp 万岁！>
+1. python 的变量如果没有声明 global 或 nonlocal, 那么该变量为局部变量, 如果变量没有在该层被赋值 (否则为普通的局部变量, 不能影响上层变量) 那么会逐层向上寻找绑定
+2. 如果在为局部变量赋值之前引用了该变量, python 会抛出 UnboundLocalError: local variable 'x' referenced before assignment
+3. nonlocal 会从该层开始逐层向上 (除顶层) 寻找绑定, 如果没有找到, python 会抛出 SyntaxError: no binding for nonlocal 'x' found
+4. global 会直接找顶层的绑定, 如果没有, python 会抛出 NameError: name 'x' is not defined
+5. 绑定是引用
+6. 可以通过 __closure__ 显式获取绑定的值, 如下:
+   #+BEGIN_SRC python
+def f1():
+    x = 3
+    def f2():
+        nonlocal x
+        x = 2
+    return f2
+
+ff = f1()
+print([c.cell_contents for c in ff.__closure__])
+ff()
+print([c.cell_contents for c in ff.__closure__])
+   #+END_SRC
+
+* modules
+** collections
+| deque       |                         |
+| Counter     |                         |
+| defaultdict |                         |
+|-------------+-------------------------|
+| Hashable    | isinstance 的第二个参数 |
+| Callable    |                         |
+| Iterable    |                         |
+| Sized       | __len__                 |
+|             |                         |
+|             |                         |
+|             |                         |
+|             |                         |
+|-------------+-------------------------|
+| OrderedDict | 我基本不用              |
+| nametuple   |                         |
+| ChainMap    |                         |
+
+** gc (garbage collection)
+有时可能会产生反效果, 慎用
+#+BEGIN_SRC python
+import gc
+del xx
+gc.collect()
+#+END_SRC
+
+** importlib
+每个 python interpreter 只会导入模块一次, 修改了模块就需要手动重新导入, 如下:\\
+(早期版本可以用 imp, 现在 deprecated)
+#+BEGIN_SRC python
+import importlib
+importlib.reload(package_name)
+#+END_SRC
+如果是通过 from 导入的, 需要如下操作
+#+BEGIN_SRC python
+import importlib
+import package_name  # if exist, ignore
+importlib.reload(package_name)
+# reexecute from clause
+#+END_SRC
+
+** cProfile profile
+#+BEGIN_SRC python
+python3 -m cProfile someprogram.py
+#+END_SRC
+
+** re
+use raw string
+| compile |
+| search  |
+| match   |
+| findall |
+| sub     |
+
+** timeit
+#+BEGIN_SRC python
+t = timeit.Timer(stmt='pass', setup='pass',
+                 timer=time.perf_counter, number=1000000, globals=None)
+t.timeit(number=1000000)
+t.repeat(repeat=3, number=1000000)
+#+END_SRC
+语句用 ''' 括起来就行, 不要出现 _t0, _t1, _timer, _i 等变量即可\\
+timer 在 linux 下, 默认是 time.time()\\
+globals 可需要用默认的 None, globals() 或 locals()
+
+** others
+| itertools     |
+| functools     |
+| operator      |
+| pdb           |
+| heapq         |
+| datetime      |
+| pprint        |
+| os            |
+| sys           |
+| pickle        |
+| csv           |
+| time          |
+| urllib        |
+| json          |
+| random        |
+| math          |
+| site          |
+|---------------|
+| threading     |
+| subprocessing |
+| logging       |
+| ctypes        |
+
+* packages (一些文档里找不到或很难找到的 tricks)
+** matplotlib
+#+BEGIN_SRC python
+import matplotlib.pyplot as plt
+
+f = plt.figure(figsize=(16, 10))
+f.show()
+
+f.canvas.draw() # 重画
+#+END_SRC
+
+** mysql-connector-python-rf
+#+BEGIN_SRC python
+import mysql.connector
+
+class ConnectMysqlGetCursor:
+    def __init__(self, database='*',
+                 user='*', password='*', host='*',
+                 port=3306, raise_on_warnings=True, autocommit=True, **kwargs):
+        self.params = locals()
+        self.params.pop('self')
+        self.params.pop('kwargs')
+        self.params.update(kwargs)
+
+    def __enter__(self):
+        self.conn = mysql.connector.connect(**self.params)
+        self.cursor = self.conn.cursor()
+        return self.cursor
+
+    def __exit__(self, *args):
+        self.cursor.close()
+        self.conn.close()
+
+# usage
+with ConnectMysqlCetCursor() as cursor:
+    cursor.execute('''
+    some sql
+    ''')
+    # then treat cursor as an iterator
+#+END_SRC
+
+插入数据, 最好是自己用数据创建整条 sql 语句, 再执行, 速度快, 易控制
+#+BEGIN_SRC python
+def gen_data_str(data, template):
+    template = '(' + ','.join(['{}'] * 3) + ')'
+    for item in data:
+        yield .format(**item)
+#+END_SRC
