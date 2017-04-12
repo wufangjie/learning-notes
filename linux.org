@@ -178,7 +178,7 @@ git clone url
 git status
 git reset file # unadd
 git checkout -- file # 用暂存区 (没有则版本库) 的版本替换工作区的版本
-git rm
+git rm file [--cache | -f] # keep file or force removal
 git mv
 git pull https://github.com/wufangjie/learning-notes master
 git pull origin master
@@ -187,6 +187,11 @@ git reflog # list commit_id and commit message
 git reset --soft commit_id
 git reset --hard commit_id
 git log [commit_id] # show commit logs
+#+END_SRC
+不小心把账号密码传到了 github 上
+#+BEGIN_SRC sh
+git reset --hard commit_id # 回退到没有错误提交前的版本
+git push origin HEAD --force
 #+END_SRC
 
 ** file manager
