@@ -1,16 +1,16 @@
 #+title: linux
 #+author: wfj
 * 需要保存的配置文件
-  | .config/fcitx/ |
-  | .config/xfce4/ |
-  | .emacs.d/      |
-  | .fonts/        |
-  | .mozilla/      |
-  | .pip/          |
-  | .emacs         |
-  | .theanorc      |
-  | .xmodmap       |
-  | .bash_history  |
+| .config/fcitx/ |
+| .config/xfce4/ |
+| .emacs.d/      |
+| .fonts/        |
+| .mozilla/      |
+| .pip/          |
+| .emacs         |
+| .theanorc      |
+| .xmodmap       |
+| .bash_history  |
 
 * linux commandline
 ** wildcard
@@ -165,12 +165,13 @@ git push origin master # 提交到远程 github 仓库
 
 *** diff
 用 M-x vc-ediff 代替
-| Git diff                                   | 比较工作区和暂存区的区别 |
-| git diff file                              | 同上, 对某一文件         |
-| git diff -cached                           | 比较暂存区和版本库的区别 |
-| git diff -cached file                      | 同上, 对某一文件         |
-| git diff comment_id1 comment_id2           | 查看某两个版本之间的差异 |
-| git diff comment_id1:file comment_id2:file | 同上, 对某一文件         |
+| git diff                         | 比较工作区和暂存区 (没有则版本库) 的区别 |
+| git diff file                    | 同上, 对某一文件                         |
+| git diff --cached                | 比较暂存区和版本库的区别                 |
+| git diff --cached file           | 同上, 对某一文件                         |
+| git diff HEAD                    |                                          |
+| git diff comment_id1 comment_id2 | 查看某两个版本之间的差异                 |
+|                                  | id后接:file, 同上, 对某一文件            |
 
 *** 其他常用命令
 #+BEGIN_SRC sh
