@@ -2,11 +2,8 @@ import numpy as np
 from collections import deque, defaultdict
 import heapq
 from copy import deepcopy
-import operator
 import itertools
-
-from utils import unique_func, memo
-import utils
+from utils import memo
 
 
 class Graph():
@@ -24,9 +21,7 @@ class Graph():
         self.weighted = weighted
 
     def copy(self):
-        return Graph(self.G.copy(), self.weighted)
-
-    def deepcopy(self):
+        """Graph only need deepcopy"""
         return Graph(deepcopy(self.G), self.weighted)
 
     @staticmethod
@@ -330,15 +325,15 @@ def _dfs(u):
         Note: this implemention assume negative edge exists, otherwise
         bellman_ford and reweight are useless
         """
-        g_new = self.deepcopy()
+        g_new = self.copy()
         v_new = object()
         g_new.G[v_new] = {k: 0 for k in self.G}
         D, _ = g_new.bellman_ford(v_new)
-        print(D)
+        #print(D)
         for u in self.G:
             for v in self.G[u]:
                 g_new.G[u][v] += D[u] - D[v]
-        print(g_new.G)
+        #print(g_new.G)
         for u in self.G:
             generator = g_new.dijkstra(u)
             next(generator)
@@ -576,7 +571,6 @@ class DisjointSet:
 
 
 if __name__ == '__main__':
-    print('hello world')
 
     # p119. Python Algorithms: Mastering Basic Algorithms in the Python Language
     g1 = Graph({'a': {'b', 'c'},
@@ -600,7 +594,7 @@ if __name__ == '__main__':
                 'h': {'i': 7},
                 'i': {}})
 
-    g3 = g2.deepcopy()
+    g3 = g2.copy()
     g3.add_reverse_edges()
 
     # p703. Introduction to Algorithms (Third Edition)
@@ -645,12 +639,14 @@ if __name__ == '__main__':
                 't': {}})
 
 
-
     from pprint import pprint
 
-    def ff(l):
+    def ff(l, convert_to_list_first=True):
         print()
-        pprint(list(l))
+        if convert_to_list_first:
+            pprint(list(l))
+        else:
+            pprint(l)
 
     ff(g1.bfs('a'))
     ff(g1.dfs('a'))
@@ -659,19 +655,20 @@ if __name__ == '__main__':
     ff(g2.tsort())
     ff(g2.tsort_dfs())
     ff(g1.scc())
-    ff(g2.deepcopy().prim('a')) # deepcopy
+    ff(g2.copy().prim('a')) # deepcopy
     ff(g2.kruskal())
     ff(g3.bellman_ford('h'))
     ff(g3.dijkstra('h'))
-
-    print(g2.sp_dag('a', 'g'))
-    print(g2.sp_dag_rec('a', 'g'))
     ff(g4.johnson())
+    ff(g4.floyd_warshall_rec())
 
-    print(g6.bipartite_match())
-    print(g7.edge_disjoint_paths('s', 't'))
-    print(g7.vertex_disjoint_paths('s', 't'))
-    print(g8.max_flow('s', 't'))
+    assert g2.sp_dag('a', 'g') == g2.sp_dag_rec('a', 'g') == 18
+    print('-' * 60)
+
+    ff(g6.bipartite_match(), False)
+    ff(g7.edge_disjoint_paths('s', 't'), False)
+    ff(g7.vertex_disjoint_paths('s', 't'), False)
+    ff(g8.max_flow('s', 't'), False)
 
 
 
