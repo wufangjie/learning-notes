@@ -39,6 +39,8 @@
 
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
+(setq ediff-split-window-function 'split-window-horizontally)
+
 
 ;; ============================================================================
 ;; org-mode 源代码语法高亮, 折行
