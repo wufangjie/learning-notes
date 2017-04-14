@@ -191,7 +191,7 @@
 	 test equal
 	 data ("baidu"         "https://www.baidu.com/s?wd=%s"
 	       "bing"          "https://www.bing.com/search?q=%s"
-	       "bing-global"   "https://global.bing.com/search?q=%s"
+	       "bing-global"   "https://global.bing.com/search?q=%s&setmkt=en-us&setlang=en-us&FORM=SECNEN"
 	       "bing-dict"     "https://www.bing.com/dict/search?q=%s"
 	       "douban"        "https://www.douban.com/search?q=%s"
 	       "douban-book"   "https://book.douban.com/subject_search?search_text=%s&cat=1001"
