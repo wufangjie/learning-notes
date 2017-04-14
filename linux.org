@@ -189,10 +189,18 @@ git reset --soft commit_id
 git reset --hard commit_id
 git log [commit_id] # show commit logs
 #+END_SRC
-不小心把账号密码传到了 github 上
+如果不小心把账号密码传到了 github 上, 可以进行如下操作
 #+BEGIN_SRC sh
 git reset --hard commit_id # 回退到没有错误提交前的版本
 git push origin HEAD --force
+#+END_SRC
+
+*** 名词解释
+| HEAD   | the current commit your repo is on         |
+| origin | the default name given to main remote repo |
+| master | default branch, remote or local            |
+#+BEGIN_SRC sh
+git branch -a # 显示所有分支
 #+END_SRC
 
 ** file manager
