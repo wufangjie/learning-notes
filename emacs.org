@@ -39,9 +39,9 @@ M-x ediff-buffers 或 ediff 开启对比, (仅 linux 可用)\\
 |      | 其他功能暂时用不倒             |
 
 *** vc-ediff
-光标在所在文件 buffer
-| 无前缀 | 工作区和暂存区 (没有则版本库) 的区别 |
-| 有前缀 | 分两次输入 comment_id, 进行比较      |
+光标在所在文件 buffer, 或者不想加条件可以直接用 vc-version-ediff
+| 无前缀 | 工作区和版本库的区别            |
+| 有前缀 | 分两次输入 comment_id, 进行比较 |
 
 * regular expression
 |       |                                        |                              |
