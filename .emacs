@@ -237,8 +237,8 @@
 ;; ============================================================================
 (add-hook 'dired-mode-hook
 	  (lambda ()
-	    (setq dired-recursive-copies t)
-	    (setq dired-recursive-deletes t)
+	    (setq dired-recursive-copies "always")
+	    (setq dired-recursive-deletes "always")
 	    (local-set-key (kbd "RET")
 			   (lambda ()
 			     (interactive)
