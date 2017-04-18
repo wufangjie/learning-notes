@@ -546,6 +546,15 @@ org能够识别有序列表, 无序列表和描述列表
 | C-x RET r 编码 | revert-buffer-with-coding-system | 按该编码重新打开文件 |
 | C-x RET f 编码 | set-buffer-file-coding-system    | 按该编码重新保存     |
 
+** character
+| 快捷键 | 命令            | 特殊说明                             |
+|--------+-----------------+--------------------------------------|
+| M-l    | downcase-word   | lower, 视当前光标为第一个字母        |
+| M-u    | upcase-word     |                                      |
+| M-c    | capitalize-word |                                      |
+|--------+-----------------+--------------------------------------|
+| C-t    | transpose-chars | 当前光标和前一个交换, 光标向后移一位 |
+
 * elisp
 ** 基本概念
 *** lisp 大小写不敏感, 但 elisp 不是
