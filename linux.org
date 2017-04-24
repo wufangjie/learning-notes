@@ -30,8 +30,12 @@
 功能其实用到的很有限, 主要是文件名的处理\\
 我认为给所有的 [^a-zA-Z0-9] 前都加一个 \ 就是 bash-safe 的, 不知道对不对
 
-** pipelines
+** pipelines and xargs
 pipe operator |, 之后不加 xargs 的话, 就是把前一条命令的结果当作一个文件用后一条命令来处理; 否则, 就是把前一条命令的结果当作参数追加到后一条命令并执行\\
+如果不用 -I 的话就是加在命令最后; -I{} 就会替换后面命令中的 {}
+#+BEGIN_SRC sh
+find ~/ -name ".py" | xargs -I{} cp {} newdir
+#+END_SRC
 eshell 的命令行的长度只能到最低标准 4096, 所以用起来会有问题, 不知道能不能通过设置变量解决, 但我查了 describe-variance 中 eshell 相关变量未发现能改的
 
 ** grep
