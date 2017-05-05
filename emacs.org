@@ -302,44 +302,46 @@ org能够识别有序列表, 无序列表和描述列表
 |         | delete-duplicate-lines | 保留第一个, 前缀 C-u 保留最后一个 |
 
 * dired-mode
-| 快捷键 | 命令                         | 说明                                  |
-|--------+------------------------------+---------------------------------------|
-| C-x d  | dired                        |                                       |
-|--------+------------------------------+---------------------------------------|
-| j      | dired-goto-file              | 利用 minibuffer 的补全功能跳转        |
-| k      | dired-do-kill-lines          | 隐藏标记的文件                        |
-| g      | revert-buffer                | 更新 buffer                           |
-| s      | dired-sort-toggle-or-edit    | 已重写, 按 ls 的参数展示, 详见 .emacs |
-| (      | dired-hide-details-mode      |                                       |
-| y      | dired-show-file-type         |                                       |
-| q      | quit-window                  | 有前缀才能删除 buffer, 不如用 C-x k   |
-|--------+------------------------------+---------------------------------------|
-| d      | dired-flag-file-deletion     |                                       |
-| x      | dired-do-flagged-delete      |                                       |
-| DEL    | dired-unmark-backward        | 在标记的下一行使用                    |
-| u      | dired-unmark                 | 在标记行使用                          |
-| U      | dired-unmark-all-marks       |                                       |
-| m      | dired-mark                   |                                       |
-| t      | dired-toggle-marks           |                                       |
-| % d    | dired-flag-files-regexp      |                                       |
-| % m    | dired-mark-files-regexp      |                                       |
-|--------+------------------------------+---------------------------------------|
-| M      | dired-do-chmod               |                                       |
-| O      | dired-do-chown               |                                       |
-| G      | dired-do-chgrp               |                                       |
-| H      | dired-do-hardlink            |                                       |
-| S      | dired-do-symlink             |                                       |
-| C      | dired-do-copy                |                                       |
-| R      | dired-do-rename              | mv                                    |
-| D      | dired-do-delete              |                                       |
-|--------+------------------------------+---------------------------------------|
-| Z      | dired-do-compress            | 解压或压缩, **TODO**                  |
-| RET    | dired-find-file              | 已重写, 详见 .emacs                   |
-| o      | dired-find-file-other-window |                                       |
-| ^      | dired-up-directory           |                                       |
-| <      | dired-prev-dirline           |                                       |
-| >      | dired-next-dirline           |                                       |
-| +      | dired-create-directory       |                                       |
+| 快捷键  | 命令                         | 说明                                  |
+|---------+------------------------------+---------------------------------------|
+| C-x d   | dired                        |                                       |
+| C-x q   |                              | 取消只读, 用来修改文件名              |
+| C-c C-c |                              | 用来确认上述修改                      |
+|---------+------------------------------+---------------------------------------|
+| j       | dired-goto-file              | 利用 minibuffer 的补全功能跳转        |
+| k       | dired-do-kill-lines          | 隐藏标记的文件                        |
+| g       | revert-buffer                | 更新 buffer                           |
+| s       | dired-sort-toggle-or-edit    | 已重写, 按 ls 的参数展示, 详见 .emacs |
+| (       | dired-hide-details-mode      |                                       |
+| y       | dired-show-file-type         |                                       |
+| q       | quit-window                  | 有前缀才能删除 buffer, 不如用 C-x k   |
+|---------+------------------------------+---------------------------------------|
+| d       | dired-flag-file-deletion     |                                       |
+| x       | dired-do-flagged-delete      |                                       |
+| DEL     | dired-unmark-backward        | 在标记的下一行使用                    |
+| u       | dired-unmark                 | 在标记行使用                          |
+| U       | dired-unmark-all-marks       |                                       |
+| m       | dired-mark                   |                                       |
+| t       | dired-toggle-marks           |                                       |
+| % d     | dired-flag-files-regexp      |                                       |
+| % m     | dired-mark-files-regexp      |                                       |
+|---------+------------------------------+---------------------------------------|
+| M       | dired-do-chmod               |                                       |
+| O       | dired-do-chown               |                                       |
+| G       | dired-do-chgrp               |                                       |
+| H       | dired-do-hardlink            |                                       |
+| S       | dired-do-symlink             |                                       |
+| C       | dired-do-copy                |                                       |
+| R       | dired-do-rename              | mv                                    |
+| D       | dired-do-delete              |                                       |
+|---------+------------------------------+---------------------------------------|
+| Z       | dired-do-compress            | 解压或压缩, **TODO**                  |
+| RET     | dired-find-file              | 已重写, 详见 .emacs                   |
+| o       | dired-find-file-other-window |                                       |
+| ^       | dired-up-directory           |                                       |
+| <       | dired-prev-dirline           |                                       |
+| >       | dired-next-dirline           |                                       |
+| +       | dired-create-directory       |                                       |
 
 标记命令都能加数字前缀, 表示运行多次, 不实用, 直接选中区域再执行相应命令更方便
 | 一些可能有用的变量        |
