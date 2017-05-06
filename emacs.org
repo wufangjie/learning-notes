@@ -43,6 +43,17 @@ M-x ediff-buffers 或 ediff 开启对比, (仅 linux 可用)\\
 | 无前缀 | 工作区和版本库的区别            |
 | 有前缀 | 分两次输入 comment_id, 进行比较 |
 
+** emacs python-mode 卡顿原因查找
+#+BEGIN_EXAMPLE
+M-x profiler-start 做那些很卡的操作
+M-x profiler-report 看结果
+发现是字体高亮的问题, 以 root 打开以下文件
+/sudo::/usr/share/emacs/24.5/lisp/progmodes/python.el.gz
+注释了 assignment 部分 (特别慢), 并给予所有赋值号 font-lock-builtin-face
+添加, 修改了几个关键词
+M-x byte-compile-file RET python.el.gz 如果没有报错就说明成功了
+#+END_EXAMPLE
+
 * regular expression
 |       |                                        |                              |
 |-------+----------------------------------------+------------------------------|
@@ -62,7 +73,7 @@ M-x ediff-buffers 或 ediff 开启对比, (仅 linux 可用)\\
 + \ 在 [] 中不是特殊字符, 比如 "[\n]" (字符串转义) 而不是 "[\\n]" (匹配 \ 或 n)
 + \d \D 不能匹配数字
 + ^ $ 匹配行首和行尾, \` \' 匹配 buffer 的头和尾
-+ \sC \SC, C in {w(\w), -(\s), (\s), .(普通标点符号)}
++ \sC \SC, C in {w(\w), -(\s),  (\s), .(普通标点符号)}
 + \cC \CC, C 详见 M-x describe-categories
 
 * org-mode
