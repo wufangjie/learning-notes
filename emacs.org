@@ -54,6 +54,38 @@ M-x profiler-report 看结果
 M-x byte-compile-file RET python.el.gz 如果没有报错就说明成功了
 #+END_EXAMPLE
 
+* paragraph
+| M-{ | M-[, backward-paragraph |
+| M-} | M-], forward-paragraph  |
+| M-h | mark-paragraph          |
+
+#+BEGIN_SRC emacs-lisp
+"\f\\|[ \t]*$" ; paragraph-start
+; \f 是分页转义, 在 emacs 显示为 ^L (即按键为 control-L)
+"^[ \t\f]*$" ; paragraph-separate
+#+END_SRC
+
+M-h 联按的方式很受益, 自己写了如下的函数, 但为了让自己更熟练使用
+paragarph 移动的方式, 暂时不加入 .emacs
+#+BEGIN_SRC emacs-lisp
+(defun mark-paragraph (&optional arg allow-extend)
+  (interactive "p\np")
+  (unless arg (setq arg 1))
+  (when (zerop arg)
+    (error "Cannot mark zero paragraphs"))
+  (cond ((and allow-extend
+	      (or (and (eq last-command this-command) (mark t))
+		  (and transient-mark-mode mark-active)))
+	 (if (> (point) (mark))
+	     (forward-paragraph arg)
+	   (backward-paragraph arg)))
+	(t
+	 (backward-paragraph arg)
+	 (push-mark nil t t)
+	 (forward-paragraph arg))))
+(global-set-key (kbd "M-h") 'mark-paragraph)
+#+END_SRC
+
 * regular expression
 |       |                                        |                              |
 |-------+----------------------------------------+------------------------------|
@@ -443,6 +475,8 @@ org能够识别有序列表, 无序列表和描述列表
 | M->    | end-of-buffer       |                             |
 | C-v    | scroll-up           |                             |
 | M-v    | scroll-down         |                             |
+| M-}    | forward-paragraph   | rebind to M-]               |
+| M-{    | backward-paragraph  | rebind to M-[               |
 | C-M-n  | forward-list        | forward across parentheses  |
 | C-M-p  | backward-list       | backward across parentheses |
 | C-l    | recenter            |                             |
@@ -451,8 +485,6 @@ org能够识别有序列表, 无序列表和描述列表
 | M-g c  | goto-char           | the position of buffer      |
 | M-a    | backward-sentence   |                             |
 | M-e    | forward-sentence    |                             |
-| M-}    | forward-paragraph   |                             |
-| M-{    | backward-paragraph  |                             |
 | C-x [  | backward-page       |                             |
 | C-x ]  | forward-page        |                             |
 

@@ -28,18 +28,21 @@
 (scroll-bar-mode 0)
 
 (setq frame-title-format "%b")
-(setq fill-column 79)
 (setq column-number-mode t)
 (global-linum-mode t)
 (setq scroll-margin 3
       scroll-conservatively 10000)
 
+;; special
 (setq x-select-enable-clipboard t)  ; shared with clipboard
 (setq make-backup-files nil)  ; no ~ file
-
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
-
 (setq ediff-split-window-function 'split-window-horizontally)
+
+(global-unset-key (kbd "M-}"))
+(global-unset-key (kbd "M-{"))
+(global-set-key (kbd "M-]") 'forward-paragraph)
+(global-set-key (kbd "M-[") 'backward-paragraph)
 
 
 ;; ============================================================================
