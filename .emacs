@@ -44,6 +44,12 @@
 (global-set-key (kbd "M-]") 'forward-paragraph)
 (global-set-key (kbd "M-[") 'backward-paragraph)
 
+(mapc (lambda (mode)
+        (font-lock-add-keywords
+         mode
+         '(("\\<\\(FIXME\\|TODO\\):?" 1 'font-lock-warning-face prepend))))
+      '(python-mode org-mode emacs-lisp-mode c-mode))
+
 
 ;; ============================================================================
 ;; org-mode 源代码语法高亮, 折行
