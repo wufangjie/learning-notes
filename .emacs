@@ -47,7 +47,8 @@
 (mapc (lambda (mode)
         (font-lock-add-keywords
          mode
-         '(("\\<\\(FIXME\\|TODO\\):?" 1 'font-lock-warning-face prepend))))
+         '(("\\<\\(FIXME\\|TODO\\|NOTE\\):"
+	    1 'font-lock-warning-face prepend))))
       '(python-mode org-mode emacs-lisp-mode c-mode))
 
 
@@ -83,8 +84,7 @@
  '(font-lock-comment-face ((t (:foreground "#66cd00"))) t)
  '(font-lock-constant-face ((t (:foreground "#ffb90f" :weight bold))) t)
  '(font-lock-function-name-face
-   ((t (:background "#4f94cd" :box (:line-width -1 :style "released-button"))))
-   t)
+   ((t (:background "#4f94cd" :box (:line-width -1 :style "released-button")))) t)
  '(font-lock-keyword-face ((t (:foreground "#00ffff" :weight bold))) t)
  '(font-lock-string-face ((t (:foreground "#ffa07a"))) t)
  '(font-lock-type-face ((t (:foreground "#9aff9a" :weight bold))) t)
