@@ -355,6 +355,7 @@ Hide title of windows when maximized 打勾
 | Prefix | em      | emacs -fs |
 全屏启动, 这样就不用在 .emacs 中写 (toggle-frame-fullscreen)
 
+*** Alt + 鼠标滚轮是系统放大镜, 不小心按出来了要知道如何取消
 ** 安装软件源里没有的 python 包
 #+BEGIN_SRC sh
 sudo pip3 install --egg mysql-connector-python-rf # --egg
