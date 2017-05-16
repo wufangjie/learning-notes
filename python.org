@@ -260,13 +260,26 @@ In early python-versions, the sort function implemented a modified version of qu
 1. star expression 其实只需要是 iterator 就能 unpack
 2. coding style (pep8)
 
-* data structure
+* data structure and algorithm
 | list              |
 | dict              |
 | map               |
 | set               |
 | collections.deque |
 | heapq             |
+
+** about binary search
+#+BEGIN_SRC python
+hi = len(seq) # not -1, or seq[-1] may not be compared
+while lo < hi:
+    mid = (lo + hi) >> 1
+    # ...
+    if some_condition:
+        lo = mid + 1 # always mid + 1, or may be endless loop
+    else:
+        hi = mid - 1 # may be just mid
+#+END_SRC
+
 
 * python
 ** 变量空间
