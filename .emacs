@@ -12,7 +12,8 @@
 		      charset
                       (font-spec :family chinese
 				 :size chinese-size))))
-(set-font "monaco" "hannotate sc" 15 18)
+(if window-system
+    (set-font "monaco" "hannotate sc" 15 18))
 
 
 ;; ============================================================================
@@ -47,7 +48,7 @@
 (mapc (lambda (mode)
         (font-lock-add-keywords
          mode
-         '(("\\<\\(FIXME\\|TODO\\|NOTE\\):"
+         '(("\\<\\(FIXME\\|TODO\\|NOTE\\)"
 	    1 'font-lock-warning-face prepend))))
       '(python-mode org-mode emacs-lisp-mode c-mode))
 
@@ -246,6 +247,7 @@
 ;; ============================================================================
 (add-hook 'dired-mode-hook
 	  (lambda ()
+	    (setq dired-actual-switches "-la")
 	    (setq dired-recursive-copies "always")
 	    (setq dired-recursive-deletes "always")
 	    (local-set-key (kbd "RET")
@@ -264,3 +266,9 @@
 			      (read-string "ls switches (must contain -l): "
 					   dired-actual-switches))))
 	    ))
+
+
+(add-hook 'buffer-menu-mode-hook
+	  (lambda ()
+	    (local-set-key (kbd "s") 'tabulated-list-sort) ; exchange
+	    (local-set-key (kbd "S") 'Buffer-menu-save)))
