@@ -280,6 +280,14 @@ while lo < hi:
         hi = mid - 1 # may be just mid
 #+END_SRC
 
+** bitwise
+#+BEGIN_SRC python
+a >> 1 # a // 2
+a << 2 # a * 4
+a & 1  # a % 2 == 1
+a ^ a == 0
+# | ~ >>= <<= &= ^= |=
+#+END_SRC
 
 * python
 ** 变量空间
