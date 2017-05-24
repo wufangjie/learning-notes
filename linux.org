@@ -282,11 +282,9 @@ fc-list :lang=zh
 sudo apt-get update
 sudo apt-get install emacs
 sudo apt-get install git
-sudo apt-get install python-virtualenv
-sudo apt-get install python-pip python3-pip
+sudo apt-get install python3-dev python-pip python3-pip
 
 sudo apt-get upgrade
-sudo apt-get install python3-dev
 sudo apt-get install python3-numpy python3-scipy python3-matplotlib
 sudo apt-get install python-numpy python-scipy python-matplotlib
 
@@ -304,7 +302,7 @@ sudo apt-get install texinfo  # makeinfo
 
 *** locale 配置
 为了能输入中文, 修改如下, 更详细的说明见上一级目录的 locale\\
-C-x C-f /sudo:://etc/default/locale
+C-x C-f /sudo:://etc/default/locale, 重启生效
 #+BEGIN_EXAMPLE
 LANG="en_US.UTF-8"
 LC_CTYPE="zh_CN.UTF-8"
@@ -312,8 +310,8 @@ LC_CTYPE="zh_CN.UTF-8"
 
 ** fcitx
 #+BEGIN_SRC sh
-sudo apt-get install fcitx-config-gtk2
-sudo apt-get install fcitx-libpinyin fcitx-anthy fcitx-sunpinyin
+sudo apt-get install fcitx-libpinyin fcitx-config-gtk2
+#sudo apt-get install fcitx-anthy fcitx-sunpinyin
 #+END_SRC
 输入法有时需要输入 im-config 来选择一下输入法
 fcitx-libpinyin 替代 fcitx-sunpinyin
@@ -358,6 +356,7 @@ Hide title of windows when maximized 打勾
 *** Alt + 鼠标滚轮是系统放大镜, 不小心按出来了要知道如何取消
 ** 安装软件源里没有的 python 包
 #+BEGIN_SRC sh
+sudo pip3 install virtualenv
 sudo pip3 install --egg mysql-connector-python-rf # --egg
 sudo pip3 install -U scikit-learn
 #+END_SRC
