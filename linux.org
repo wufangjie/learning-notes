@@ -275,6 +275,12 @@ fc-list
 fc-list :lang=zh
 #+END_SRC
 
+** 依赖问题
+使用 dpkg 安装时缺少依赖时
+#+BEGIN_SRC sh
+sudo apt-get -f install # --fix-broken
+#+END_SRC
+
 * 一次性内容
 ** 重装注意事项
 *** 常用软件
@@ -312,15 +318,16 @@ LC_CTYPE="zh_CN.UTF-8"
 #+BEGIN_SRC sh
 sudo apt-get install fcitx-libpinyin fcitx-config-gtk2
 #sudo apt-get install fcitx-anthy fcitx-sunpinyin
+im-config # 按提示选择 fcitx
 #+END_SRC
-输入法有时需要输入 im-config 来选择一下输入法
 fcitx-libpinyin 替代 fcitx-sunpinyin
 fcitx-anthy 日语输入引擎 (另一个是 fcitx-mozc, 不好用)
 fcitx configuration 中 Trigger input method 用来切换当前输入法和英文, scroll between input method 在非英文下, 滚动切换所有可选的输入法
 anthy circle typing method 的 ctrl + / 会跟 emacs 的撤销冲突, 要改　ctrl + 没有 keycode 的可以设置为 empty
 
 ** 系统设置 (快捷键等)
-即保存 ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
+其实直接复制 ~/.config/xfce4 就行\\
+快捷键保存在 /xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
 *** Settings -> Keyboard -> Application Shortcuts
 删除所有, 添加以下两个
 | xfce4-appfinder             | Ctrl+' |
