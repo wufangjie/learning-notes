@@ -929,7 +929,7 @@ format = columns
 
 ** 安装 virtualenv
 #+BEGIN_SRC sh
-sudo pip install virtualenv
+sudo pip install virtualenv # 注意不要用 apt 的, 15.0 版本的有问题
 #+END_SRC
 
 ** 安装 el-get
