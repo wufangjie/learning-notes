@@ -396,6 +396,19 @@ t.repeat(repeat=3, number=1000000)
 timer 在 linux 下, 默认是 time.time()\\
 globals 可需要用默认的 None, globals() 或 locals()
 
+** warnings
+#+BEGIN_SRC python
+import warnings
+
+with warnings.catch_warnings(record=True) as w:
+    np.array([1, 2, 3, 4, 5]) / np.array([0, 2, 0, 4, 8])
+    print(w[0].__dict__)
+    import pdb
+    pdb.set_trace()
+    print('hello warning!')
+
+warnings.filterwarnings("ignore", category=np.RuntimeWarning, message="divide by zero encountered in true_divide")
+#+END_SRC
 ** others
 | itertools     |
 | functools     |
