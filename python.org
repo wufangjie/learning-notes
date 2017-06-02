@@ -409,6 +409,11 @@ with warnings.catch_warnings(record=True) as w:
 
 warnings.filterwarnings("ignore", category=np.RuntimeWarning, message="divide by zero encountered in true_divide")
 #+END_SRC
+#+BEGIN_SRC python
+raise SomeWarning # actually generating error use
+warnings.warn(message, category=None, stacklevel=1, source=None)
+#+END_SRC
+
 ** others
 | itertools     |
 | functools     |
