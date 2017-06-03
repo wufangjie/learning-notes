@@ -280,6 +280,10 @@ while lo < hi:
         hi = mid - 1 # may be just mid
 #+END_SRC
 
+** sorted matrix 的一些算法很惊艳, 可惜构造略麻烦, 还是不实用
+比如查找算法, 从右上到左下, O(n)
+比如求 kth 个元素, 可以用二分查找, 利用上述查找算法, 获取元素的排序位置, 然后缩小一半的范围查找; 如果用堆的话, 其实有一个方向上有序的条件没有用到
+
 ** bitwise
 #+BEGIN_SRC python
 a >> 1 # a // 2
