@@ -1009,3 +1009,6 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\ (if x64)
 | Spell              |       |
 | LibPinyin          |       |
 | Classic            | 皮肤  |
+
+还有 Keyboard - English (US) (Unavailable) 也有快捷键, 都不能好好地输入英文了,
+反正我的日文 HHKB 的 BS 键的左边那个键就能清空快捷键 (可能是因为没有键盘映射)
