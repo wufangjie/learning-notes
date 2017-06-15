@@ -260,6 +260,23 @@ In early python-versions, the sort function implemented a modified version of qu
 1. star expression 其实只需要是 iterator 就能 unpack
 2. coding style (pep8)
 
+** donot
+*** 不要把不需要重复计算的部分放到 comprehension 中, 跟平常的代码是一样的, 不会优化
+#+BEGIN_SRC python
+import time
+tic = time.time()
+dct = {i: i for i in range(1000)}
+n = 10
+for _ in range(1000):
+    d = [k for k, v in dct.items() if v == max(dct.values())]
+print(time.time() - tic) # about 16.7s
+tic = time.time()
+for _ in range(1000):
+    theMax = max(dct.values())
+    d = [k for k, v in dct.items() if v == theMax]
+print(time.time() - tic) # about 0.06s
+#+END_SRC
+
 * data structure and algorithm
 | list              |
 | dict              |
