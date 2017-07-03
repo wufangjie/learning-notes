@@ -54,6 +54,12 @@ M-x profiler-report 看结果
 M-x byte-compile-file RET python.el.gz 如果没有报错就说明成功了
 #+END_EXAMPLE
 
+** if you want to insert control characters
+| C-q | (qouted-insert ARG) | Read next input character and insert it |
+#+BEGIN_EXAMPLE
+
+#+END_EXAMPLE
+
 * paragraph
 | M-{ | M-[, backward-paragraph |
 | M-} | M-], forward-paragraph  |
