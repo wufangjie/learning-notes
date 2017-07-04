@@ -277,6 +277,35 @@ for _ in range(1000):
 print(time.time() - tic) # about 0.06s
 #+END_SRC
 
+** progress bar
+#+BEGIN_SRC python
+class ProgressBar:
+    def __init__(self, length=35, status=None):
+        if status is None:
+            self.status = (
+                [chr(9615)] + ['\b' + chr(i) for i in range(9614, 9607, -1)])
+        self.ns = len(self.status)
+        self.length = length * self.ns - 1
+        self.cursor = -1
+        print('|', end='', flush=True)
+
+    def moveto(self, percent):
+        superior = round(percent * self.length)
+        while self.cursor < superior:
+            self.cursor += 1
+            print(self.status[self.cursor % self.ns], end='', flush=True)
+        if percent == 1:
+            print('|', flush=True)
+
+
+if __name__ == '__main__':
+    pb = ProgressBar()
+    import time
+    for k in range(100):
+        pb.moveto((k + 1) / 100)
+        time.sleep(0.1)
+#+END_SRC
+
 * data structure and algorithm
 | list              |
 | dict              |
