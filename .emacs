@@ -80,12 +80,13 @@
 (set-face-foreground 'region "#ffffff")
 (set-face-background 'region "#4f94cd")
 
+; :overline t 不等高; :box (:line-width -1 :style "released-button") 不等宽, 按 elisp 官方文档的说法应该是等宽的, 可能是 bug, 期待以后能改好
+;((t (:background "#4f94cd" :box (:line-width -1 :style "released-button")))) t)
 (custom-set-faces
  '(font-lock-builtin-face ((t (:foreground "#ffbbff"))) t)
  '(font-lock-comment-face ((t (:foreground "#66cd00"))) t)
  '(font-lock-constant-face ((t (:foreground "#ffb90f" :weight bold))) t)
- '(font-lock-function-name-face
-   ((t (:background "#4f94cd" :box (:line-width -1 :style "released-button")))) t)
+ '(font-lock-function-name-face ((t (:background "#4f94cd" :underline t))) t)
  '(font-lock-keyword-face ((t (:foreground "#00ffff" :weight bold))) t)
  '(font-lock-string-face ((t (:foreground "#ffa07a"))) t)
  '(font-lock-type-face ((t (:foreground "#9aff9a" :weight bold))) t)
@@ -178,6 +179,12 @@
 		 (if (string-match (pop regex) str)
 		     (throw 'break t))))))))
 
+;; (add-hook 'eshell-mode-hook ; elegant display for sql
+;; 	  (lambda () (setq truncate-lines t)))
+
+(add-hook 'sql-interactive-mode-hook
+	  (lambda () (setq truncate-lines t)))
+
 
 ;; ============================================================================
 ;; c style
@@ -268,7 +275,22 @@
 	    ))
 
 
-(add-hook 'buffer-menu-mode-hook
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+(add-hook 'ibuffer-mode-hook
 	  (lambda ()
-	    (local-set-key (kbd "s") 'tabulated-list-sort) ; exchange
-	    (local-set-key (kbd "S") 'Buffer-menu-save)))
+	    (local-set-key (kbd "U") 'ibuffer-unmark-all)))
+
+;; (add-hook 'buffer-menu-mode-hook
+;; 	  (lambda ()
+;; 	    (local-set-key (kbd "s") 'tabulated-list-sort) ; exchange
+;; 	    (local-set-key (kbd "S") 'Buffer-menu-save)
+;; 	    (setq Buffer-menu-name-width 48)
+;; 	    (setq Buffer-menu-mode-width 8) ; 16
+;; 	    ;; (setq Buffer-menu-size-width 7) ; 7
+;; 	    ))
+
+
+;; (defun test ()
+;;   (interactive "b")
+;;   (message "%s" buffer-file-name))
