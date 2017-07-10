@@ -389,6 +389,7 @@ org能够识别有序列表, 无序列表和描述列表
 | Z       | dired-do-compress            | 解压或压缩, **TODO**                  |
 | RET     | dired-find-file              | 已重写, 详见 .emacs                   |
 | o       | dired-find-file-other-window |                                       |
+| C-o     | dired-display-file           | like o, but not move cursor           |
 | ^       | dired-up-directory           |                                       |
 | <       | dired-prev-dirline           |                                       |
 | >       | dired-next-dirline           |                                       |
@@ -402,7 +403,43 @@ org能够识别有序列表, 无序列表和描述列表
 | delete-by-moving-to-trash |
 | dired-sort-inhibit        |
 
-* list-buffers
+* ibuffer
+| 快捷键  | 命令                                | 说明                        |
+|---------+-------------------------------------+-----------------------------|
+| C-x C-b | ibuffer                             | global kbd in .emacs        |
+|---------+-------------------------------------+-----------------------------|
+| d       | ibuffer-mark-for-delete             | 这块和 dired-mode 完全相同  |
+| x       | ibuffer-do-kill-on-deletion-marks   |                             |
+| u       | ibuffer-unmark-forward              |                             |
+| DEL     | ibuffer-unmark-backward             |                             |
+| o       | ibuffer-visit-buffer-other-window   |                             |
+| C-o     |                                     |                             |
+| g       | ibuffer-update                      |                             |
+| m       | ibuffer-mark-forward                |                             |
+| t       | ibuffer-toggle-marks                |                             |
+| j       | ibuffer-jump-to-buffer              |                             |
+| U       |                                     | 重绑定为 ibuffer-unmark-all |
+|---------+-------------------------------------+-----------------------------|
+| C-d     | ibuffer-mark-for-delete-backwards   |                             |
+|---------+-------------------------------------+-----------------------------|
+| s s     | ibuffer-do-sort-by-size             |                             |
+| s f     | ibuffer-do-sort-by-filename/process | Filename/Process            |
+| s i     | ibuffer-invert-sorting              | Size                        |
+| s m     | ibuffer-do-sort-by-major-mode       | Mode                        |
+| s a     | ibuffer-do-sort-by-alphabetic       | Name                        |
+| s v     | ibuffer-do-sort-by-recency          | buffer 创建时间             |
+|---------+-------------------------------------+-----------------------------|
+| % f     | ibuffer-mark-by-file-name-regexp    |                             |
+| % m     | ibuffer-mark-by-mode-regexp         |                             |
+| % n     | ibuffer-mark-by-name-regexp         |                             |
+
+相比 list-buffers, filename 和 process 显示地更好\\
+相比 dired-mode, mark 要注意以下几点:\\
+1. dired-mode 需要 mark 一些文件进行统一操作, 比如 chmod 等, 感觉这对 buffers 来说只有删除这一个选择
+2. 无法选中进行 mark
+3. 删除 buffer 时的提示很烦人, 修改源码中的 :dangerous t, 然后重新 byte-compile-file 即可
+
+* +list-buffers (abandon, use ibuffer instead)+
 | 快捷键  | 命令                          | 说明                         |
 |---------+-------------------------------+------------------------------|
 | C-x C-b | list-buffers                  |                              |
