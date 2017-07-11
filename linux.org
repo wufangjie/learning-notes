@@ -411,6 +411,12 @@ ImportError: cannot import name intern\\
 pip3 install six -U -t /usr/lib/python3/dist-packages/
 #+END_SRC
 
+** mysql 修改 root 密码
+mysql 5.7 如果没有为 root 设置密码, 那么他的 plugin 为 auth_socket, (这种方式的两个缺点, emacs 的 sql-mysql 不能直接连接, access denied, 而且不能通过一般的改密码方法修改 root 密码, 修改方法如下)
+#+BEGIN_SRC sql
+alter user 'root'@'localhost' identified with mysql_native_password by 'xxxx'
+#+END_SRC
+
 ** vi 基本操作 (用来修改 /etc/apt/sources.list)
 | 快捷键      | 功能                                  |
 |-------------+---------------------------------------|
