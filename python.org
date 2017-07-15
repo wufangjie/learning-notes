@@ -381,6 +381,91 @@ print([c.cell_contents for c in ff.__closure__])
    #+END_SRC
 
 * modules
+** asyncio and async / await
+(普通函数, 生成器函数, 异步函数, 异步生成器函数)\\
+跟生成器一样, 异步函数也是通过 ret.send(None) 来驱动, 而且正常返回时也会抛出一个 StopIteration 异常, 并把返回值保存在 StopIteration 对象的 value 属性中\\
+await 只能出现在 async 修饰的函数中, 进一步后面必须要跟 Awaitable, 其作用是挂起自身等待 Awaitable 返回后继续\\
+用 @asyncio.coroutine 或 @types.corcoutine 可以装饰生成器为协程\\
+一般会用 asyncio 库的事件循环来调度:
+#+BEGIN_SRC
+loop = asyncio.get_event_loop()
+loop.run_until_complete(something)
+#+END_SRC
+
+** concurrent.features
+#+BEGIN_SRC python
+import time
+import asyncio
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+# 感觉 as_completed 的唯一作用就是知道各个部分的大致完成先后顺序
+
+
+
+n = 10
+
+
+def output(i):
+    with open('{}.txt'.format(i), 'wt') as f:
+        for j in range(10000):
+            f.write('{}\n'.format(i + j))
+
+
+async def output_async(i):
+    with open('{}.txt'.format(i), 'wt') as f:
+        for j in range(10000):
+            f.write('{}\n'.format(i + j))
+
+
+
+time_points = [time.time()]
+
+
+for i in range(n):
+    output(i)
+time_points.append(time.time())
+
+
+async def main():
+    await asyncio.wait([output_async(n + i) for i in range(n)])
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+time_points.append(time.time())
+
+
+with ThreadPoolExecutor() as pool:
+    for i in range(n):
+        pool.submit(output, 2 * n + i)
+time_points.append(time.time())
+
+
+with ProcessPoolExecutor() as pool:
+    for i in range(n):
+        pool.submit(output, 3 * n + i)
+time_points.append(time.time())
+
+
+for i, t in enumerate(['origin', 'async', 'multi-thread', 'multi-process']):
+    print('{}: cost {}s'.format(t, time_points[i + 1] - time_points[i]))
+
+
+# origin: cost 0.09283709526062012s
+# async: cost 0.03890538215637207s
+# multi-thread: cost 0.04110264778137207s
+# multi-process: cost 0.027208805084228516s
+
+# Executor 的 map 方法和通过 loop
+lst = [8, 4, 2, 6, 5, 1, 3, 9, 7]
+with ThreadPoolExecutor() as pool:
+    result = pool.map(lambda x: x ** 2, lst)
+print(list(result))
+result = []
+with ThreadPoolExecutor() as pool:
+    for i in lst:
+        result.append(pool.submit(lambda x: x ** 2, i))
+print([feature.result() for feature in result])
+#+END_SRC
+
 ** collections
 | deque       |                         |
 | Counter     |                         |
