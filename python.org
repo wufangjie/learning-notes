@@ -306,6 +306,30 @@ if __name__ == '__main__':
         time.sleep(0.1)
 #+END_SRC
 
+** unpark tuple trap
+#+BEGIN_SRC python
+from utils import ListNode
+a = ListNode('a')
+b = ListNode('b', a)
+c = ListNode('c', b)
+# a, b, c, c.next, b.next = b, c, a, b.next, a.next # 1
+# from left to right, c.next's c is ('a')
+c.next, b.next, a, b, c = b.next, a.next, b, c, a # 2
+
+print(*map(lambda x: x.next, [a, b, c]), sep='\n')
+# 1 show not all assignment happened together
+
+# 1
+# ListNode(val = a)
+# None
+# ListNode(val = a)
+
+# 2
+# None
+# ListNode(val = a)
+# None
+#+END_SRC
+
 * data structure and algorithm
 | list              |
 | dict              |
