@@ -13,7 +13,7 @@
                       (font-spec :family chinese
 				 :size chinese-size))))
 (if window-system
-    (set-font "monaco" "hannotate sc" 15 18))
+    (set-font "monaco" "hannotate sc" 16 20))
 
 
 ;; ============================================================================
@@ -294,3 +294,23 @@
 ;; (defun test ()
 ;;   (interactive "b")
 ;;   (message "%s" buffer-file-name))
+
+
+
+
+;; ============================================================================
+;; python template
+;; ============================================================================
+(setq python-template
+      #s(hash-table
+	 test equal
+	 data ("path"    "import os\n\n\ntry:\n    path = os.path.split(os.path.realpath(__file__))[0]\nexcept NameError:\n    path = os.getcwd() or os.getenv('PWD')\n\n"
+	       "head"    "#!/usr/bin/python3\n# -*- coding: utf-8 -*-\n\n"
+	       "main"    "\nif __name__ == '__main__':\n    pass"
+	       )))
+
+(defun insert-python-template ()
+  (interactive)
+  (let* ((type (completing-read "Type wanted: " python-template))
+	 (content (gethash type python-template "")))
+    (princ content (current-buffer))))
