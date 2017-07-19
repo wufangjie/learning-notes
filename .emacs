@@ -1,7 +1,7 @@
-;; ============================================================================
+;; =====================================================================
 ;; 等宽测试|
-;; ABCDefgh| 这样写能让新的 frame 也等宽
-;; ============================================================================
+;; ABCDefgh|
+;; =====================================================================
 (defun set-font (english chinese english-size chinese-size)
   (set-face-attribute 'default nil :font
 		      (format "%s:pixelsize=%d"
@@ -16,9 +16,9 @@
     (set-font "monaco" "hannotate sc" 16 20))
 
 
-;; ============================================================================
-;; 基本设置
-;; ============================================================================
+;; =====================================================================
+;; `basic'
+;; =====================================================================
 (global-font-lock-mode t)
 (show-paren-mode t)
 (setq show-paren-style 'parentheses)
@@ -34,16 +34,12 @@
 (setq scroll-margin 3
       scroll-conservatively 10000)
 
-;; special
+
 (setq x-select-enable-clipboard t)  ; shared with clipboard
 (setq make-backup-files nil)  ; no ~ file
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (setq ediff-split-window-function 'split-window-horizontally)
-
-(global-unset-key (kbd "M-}"))
-(global-unset-key (kbd "M-{"))
-(global-set-key (kbd "M-]") 'forward-paragraph)
-(global-set-key (kbd "M-[") 'backward-paragraph)
+(setq org-src-fontify-natively t)  ; highlight the org-mode's source code
 
 (mapc (lambda (mode)
         (font-lock-add-keywords
@@ -53,35 +49,47 @@
       '(python-mode org-mode emacs-lisp-mode c-mode))
 
 
-;; ============================================================================
-;; org-mode 源代码语法高亮, 折行
-;; ============================================================================
-(setq org-src-fontify-natively t)
-(add-hook 'org-mode-hook
-	  (lambda () (setq truncate-lines nil)))
+;; =====================================================================
+;; `global-kbd'
+;; =====================================================================
+(global-unset-key (kbd "M-}"))
+(global-unset-key (kbd "M-{"))
+(global-set-key (kbd "M-]") 'forward-paragraph)
+(global-set-key (kbd "M-[") 'backward-paragraph)
+
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+(add-hook 'ibuffer-mode-hook
+	  (lambda ()
+	    (local-set-key (kbd "U") 'ibuffer-unmark-all)
+	    ))
 
 
-;; ============================================================================
-;; python-mode 代码折叠, 使用 M-x hs-<TAB>
-;; ============================================================================
+;; =====================================================================
+;; `python'
+;; hide / show code, M-x hs-<TAB>
+;; =====================================================================
 (setq python-shell-interpreter "python3")
 (add-hook 'python-mode-hook 'hs-minor-mode)
 (add-hook 'inferior-python-mode-hook
 	  (lambda ()
 	    (outline-minor-mode t)
-	    (setq outline-regexp "\\(>>> \\)+")))
+	    (setq outline-regexp "\\(>>> \\)+")
+	    ))
 
 
-;; ============================================================================
-;; 配色 list-color-display list-faces-display describe-face
-;; ============================================================================
-(set-background-color "#111111")
+;; =====================================================================
+;; `color'
+;; useful functions: list-color-display list-faces-display describe-face
+;; =====================================================================
+(set-background-color "#000000")
 (set-foreground-color "#ffffff")
 (set-face-foreground 'region "#ffffff")
 (set-face-background 'region "#4f94cd")
 
-; :overline t 不等高; :box (:line-width -1 :style "released-button") 不等宽, 按 elisp 官方文档的说法应该是等宽的, 可能是 bug, 期待以后能改好
-;((t (:background "#4f94cd" :box (:line-width -1 :style "released-button")))) t)
+;; (:overline t) the heights not equal
+;; (:box (:line-width -1)) not monospaced, not as elisp's doc say, it's a bug
+;; :box (:line-width -1 :style "released-button")))) t)
 (custom-set-faces
  '(font-lock-builtin-face ((t (:foreground "#ffbbff"))) t)
  '(font-lock-comment-face ((t (:foreground "#66cd00"))) t)
@@ -91,13 +99,14 @@
  '(font-lock-string-face ((t (:foreground "#ffa07a"))) t)
  '(font-lock-type-face ((t (:foreground "#9aff9a" :weight bold))) t)
  '(font-lock-variable-name-face ((t (:foreground "#ffec8b"))) t)
- '(holiday ((t (:background "#4f94cd"))) t)
+ '(holiday ((t (:background "#4f94cd" :underline t))) t)
+ '(diary ((t (:foreground "#000000" :background "#ffbbff" :underline t))) t)
  )
 
 
-;; ============================================================================
-;; 时间
-;; ============================================================================
+;; =====================================================================
+;; `datetime'
+;; =====================================================================
 (setq display-time-24hr-format t)
 (setq display-time-format "%H:%M:%S %m-%d %a")
 (setq display-time-interval 1)
@@ -105,28 +114,16 @@
 
 (add-hook 'calendar-mode-hook
 	  (lambda ()
-	    (local-set-key (kbd "q") 'kill-buffer-and-window)))
-(setq calendar-week-start-day 1)
-(setq calendar-mark-holidays-flag t)
-(setq calendar-holidays  ; 直接修改这个变量, 可以屏蔽多余节日
-      '((holiday-fixed 1 1 "元旦")
-	(holiday-fixed 2 14 "情人节")
-	(holiday-fixed 3 8 "妇女节")
-	(holiday-fixed 5 1 "劳动节")
-	(holiday-fixed 6 1 "儿童节")
-	(holiday-fixed 10 1 "国庆节")
-	(holiday-fixed 12 25 "圣诞")
-	; TODO: add 清明
-	(holiday-chinese 1 1 "春节")
-	(holiday-chinese 5 5 "端午")
-	(holiday-chinese 7 7 "七夕")
-	(holiday-chinese 8 15 "中秋")
-	))
+	    (local-set-key (kbd "q") 'kill-buffer-and-window)
+	    (setq calendar-week-start-day 1)
+	    (setq calendar-mark-holidays-flag t)
+	    (setq diary-file "~/.emacs.d/my-diary.txt")
+	    ))
 
 
-;; ============================================================================
-;; jedi
-;; ============================================================================
+;; =====================================================================
+;; `jedi'
+;; =====================================================================
 (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
 (unless (require 'el-get nil 'noerror)
   (with-current-buffer
@@ -148,17 +145,19 @@
 (add-hook 'inferior-python-mode-hook 'jedi:setup)
 
 
-;; ============================================================================
-;; eshell
-;; ============================================================================
+;; =====================================================================
+;; `eshell'
+;; use M-[/] instead of outline-mode
+;; =====================================================================
 (setq eshell-save-history-on-exit t
       eshell-history-size 4096
       eshell-hist-ignoredups t)
 
-(add-hook 'eshell-mode-hook
-	  (lambda ()
-	    (outline-minor-mode t)
-	    (setq outline-regexp "[~/][^\n]*? [#$] ")))
+;; (add-hook 'eshell-mode-hook
+;; 	  (lambda ()
+;; 	    (outline-minor-mode t)
+;; 	    (setq outline-regexp "[~/][^\n]*? [#$] ")
+;; 	    ))
 
 (defvar eshell-histignore
   '("^\\(cd\\|git\\|svn\\|g\\+\\+\\|cc\\|nvcc\\)\\(\\(\\s \\)+.*\\)?$"
@@ -170,6 +169,7 @@
     "^\\(sudo \\)?pip[23]? \\(list\\|show\\|search\\)"
     " -\\(-version\\|[Vv]\\)$"
     ))
+
 (setq eshell-input-filter
       #'(lambda (str)
 	  (let ((regex eshell-histignore))
@@ -179,16 +179,10 @@
 		 (if (string-match (pop regex) str)
 		     (throw 'break t))))))))
 
-;; (add-hook 'eshell-mode-hook ; elegant display for sql
-;; 	  (lambda () (setq truncate-lines t)))
 
-(add-hook 'sql-interactive-mode-hook
-	  (lambda () (setq truncate-lines t)))
-
-
-;; ============================================================================
-;; c style
-;; ============================================================================
+;; =====================================================================
+;; `c-style'
+;; =====================================================================
 (add-hook 'c-mode-hook
 	  (lambda ()
 	      (c-set-style "ellemtel")
@@ -201,10 +195,10 @@
 	      ))
 
 
-;; ============================================================================
-;; fast search keywords on internet / open file for linux
-;; use`open' for mac, `start' for windows instead of `xdg-open'
-;; ============================================================================
+;; =====================================================================
+;; fast search keywords on internet, fast open file
+;; TODO? use`open' for mac, `start' for windows instead of `xdg-open'
+;; =====================================================================
 (setq fast-search-hash-table
       #s(hash-table
 	 test equal
@@ -223,8 +217,13 @@
 	       "zhihu"         "https://www.zhihu.com/search?type=content&q=%s"
 	       )))
 
+;; ^~-:.@%+=              ; do not change
+;; []{}                   ; i think should change
+;; $#                     ; emacs change them
+;;  \t\n`<>|;!?'"()*\&    ; must change
 (defun convert-to-bash-safe-file-name (name)
-  (replace-regexp-in-string "\\([^a-zA-Z0-9]\\)" "\\\\\\1" name))
+  (replace-regexp-in-string "\\([][ \t\n`<>|;!?'\"()*\\&$#{}]\\)" "\\\\\\1" name))
+  ;(replace-regexp-in-string "\\([^a-zA-Z0-9]\\)" "\\\\\\1" name))
 
 (defun fast-search ()
   (interactive)
@@ -249,9 +248,9 @@
     (message "Invalid file")))
 
 
-;; ============================================================================
-;; dired-mode
-;; ============================================================================
+;; =====================================================================
+;; `dired-mode'
+;; =====================================================================
 (add-hook 'dired-mode-hook
 	  (lambda ()
 	    (setq dired-actual-switches "-la")
@@ -275,38 +274,15 @@
 	    ))
 
 
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-
-(add-hook 'ibuffer-mode-hook
-	  (lambda ()
-	    (local-set-key (kbd "U") 'ibuffer-unmark-all)))
-
-;; (add-hook 'buffer-menu-mode-hook
-;; 	  (lambda ()
-;; 	    (local-set-key (kbd "s") 'tabulated-list-sort) ; exchange
-;; 	    (local-set-key (kbd "S") 'Buffer-menu-save)
-;; 	    (setq Buffer-menu-name-width 48)
-;; 	    (setq Buffer-menu-mode-width 8) ; 16
-;; 	    ;; (setq Buffer-menu-size-width 7) ; 7
-;; 	    ))
-
-
-;; (defun test ()
-;;   (interactive "b")
-;;   (message "%s" buffer-file-name))
-
-
-
-
-;; ============================================================================
-;; python template
-;; ============================================================================
+;; =====================================================================
+;; `insert-python-template'
+;; =====================================================================
 (setq python-template
       #s(hash-table
 	 test equal
-	 data ("path"    "import os\n\n\ntry:\n    path = os.path.split(os.path.realpath(__file__))[0]\nexcept NameError:\n    path = os.getcwd() or os.getenv('PWD')\n\n"
-	       "head"    "#!/usr/bin/python3\n# -*- coding: utf-8 -*-\n\n"
-	       "main"    "\nif __name__ == '__main__':\n    pass"
+	 data ("head"    "#!/usr/bin/python3\n# -*- coding: utf-8 -*-\n\n"
+	       "main"    "if __name__ == '__main__':\n    "
+	       "path"    "import os\n\n\ntry:\n    path = os.path.split(os.path.realpath(__file__))[0]\nexcept NameError:\n    path = os.getcwd() or os.getenv('PWD')\n\n"
 	       )))
 
 (defun insert-python-template ()
@@ -314,3 +290,25 @@
   (let* ((type (completing-read "Type wanted: " python-template))
 	 (content (gethash type python-template "")))
     (princ content (current-buffer))))
+
+
+;; =====================================================================
+;; `truncate-lines'
+;; =====================================================================
+(add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
+;; (add-hook 'eshell-mode-hook (lambda () (setq truncate-lines t)))
+(add-hook 'sql-interactive-mode-hook (lambda () (setq truncate-lines t)))
+
+
+
+
+
+;; =====================================================================
+;; load other files
+;; =====================================================================
+(load "~/.emacs.d/my-holidays.el")
+
+
+
+
+; TODO: hash-talbe's string is too long a line, make it short
