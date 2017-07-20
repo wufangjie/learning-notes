@@ -4,8 +4,8 @@
 ** with
 *** with protocol
 用法和例子
-| * pythonic ** magitc methods *** with protocol |
-| * packages ** mysql-connector-python-rf        |
+| 详见 * pythonic ** magitc methods *** with protocol |
+| 详见 * packages ** mysql-connector-python-rf        |
 
 *** contextlib
 直接看源代码
@@ -411,7 +411,7 @@ print([c.cell_contents for c in ff.__closure__])
 await 只能出现在 async 修饰的函数中, 进一步后面必须要跟 Awaitable, 其作用是挂起自身等待 Awaitable 返回后继续\\
 用 @asyncio.coroutine 或 @types.corcoutine 可以装饰生成器为协程\\
 一般会用 asyncio 库的事件循环来调度:
-#+BEGIN_SRC
+#+BEGIN_SRC python
 loop = asyncio.get_event_loop()
 loop.run_until_complete(something)
 #+END_SRC
