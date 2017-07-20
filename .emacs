@@ -63,6 +63,12 @@
 (global-set-key (kbd "M-]") 'forward-paragraph)
 (global-set-key (kbd "M-[") 'backward-paragraph)
 
+(global-set-key (kbd "C-l")
+		(lambda ()
+		  (interactive)
+		  (recenter-top-bottom)
+		  (redraw-display)))
+
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
 (add-hook 'ibuffer-mode-hook
