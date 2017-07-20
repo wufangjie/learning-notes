@@ -34,6 +34,12 @@
 (setq scroll-margin 3
       scroll-conservatively 10000)
 
+(setq blink-cursor-mode nil)
+;(setq blink-cursor-delay 1)
+
+
+(set-frame-parameter (selected-frame) 'alpha '(90 50))
+
 
 (setq x-select-enable-clipboard t)  ; shared with clipboard
 (setq make-backup-files nil)  ; no ~ file
@@ -82,10 +88,11 @@
 ;; `color'
 ;; useful functions: list-color-display list-faces-display describe-face
 ;; =====================================================================
-(set-background-color "#000000")
+(set-background-color "#111111")
 (set-foreground-color "#ffffff")
-(set-face-foreground 'region "#ffffff")
-(set-face-background 'region "#4f94cd")
+;(set-face-foreground 'region "#ffffff")
+(set-face-background 'region "#228b22")
+
 
 ;; (:overline t) the heights not equal
 ;; (:box (:line-width -1)) not monospaced, not as elisp's doc say, it's a bug
@@ -98,9 +105,23 @@
  '(font-lock-keyword-face ((t (:foreground "#00ffff" :weight bold))) t)
  '(font-lock-string-face ((t (:foreground "#ffa07a"))) t)
  '(font-lock-type-face ((t (:foreground "#9aff9a" :weight bold))) t)
- '(font-lock-variable-name-face ((t (:foreground "#ffec8b"))) t)
+ '(font-lock-variable-name-face ((t (:foreground "#ffec8b" :bold t))) t)
  '(holiday ((t (:background "#4f94cd" :underline t))) t)
  '(diary ((t (:foreground "#000000" :background "#ffbbff" :underline t))) t)
+ '(linum ((t (:foreground "#333333" :underline t))) t)
+ '(button ((t (:foreground "#4f94cd" :underline t))) t)
+ '(highlight ((t (:foreground "#ffffff" :background "#66cd00"))) t)
+ '(isearch ((t (:foreground "#4f94cd" :background "#ffffff" :underline t))) t)
+ '(lazy-highlight ((t (:foreground "#ffffff" :background "#4f94cd"))) t)
+ '(popup-face ((t (:foreground "#000000" :background "#d3d3d3"))) t)
+ '(popup-tip-face ((t (:foreground "#ffffff" :background "#4f94cd"))) t)
+ '(popup-summary-face ((t (:foreground "#4f94cd" :background "#d3d3d3"))) t)
+ '(cursor ((t (:background "#ffffff"))) t)
+ '(org-block ((t (:foreground "#ffffff"))) t)
+ ;'(org-table ((t (:foreground "#"))) t)
+ '(isearch-fail ((t (:foreground "#ffffff" :background "#ee0000"))) t)
+ '(minibuffer-prompt ((t (:inherit font-lock-function-name-face))) t)
+ '(show-paren-mismatch ((t (:inherit isearch-fail))) t)
  )
 
 
