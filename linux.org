@@ -12,6 +12,10 @@
 | .xmodmap       |
 | .bash_history  |
 
+* tricks
+** 勾选 xfce4-appearance-settings -> settings -> enable editable accelerators
+就可以在一些 xfce4 的 app 的菜单栏, 用 delete 取消绑定快捷键了, 之后就可以找相应的配置文件来自定义快捷键了
+
 * linux commandline
 ** wildcard
 | ?   |
