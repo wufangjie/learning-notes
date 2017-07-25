@@ -56,6 +56,12 @@ for node in a:
 *** with protocol
 自定义实现了 __enter__ and __exit__ 的类, 分别用于进入和退出时的操作
 
+*** __getattribute__, __getattr__, __setattr__, __delattr__, getattr, setattr, setattr
+Attribute assignments and deletions update the instance’s dictionary, never a class’s dictionary. If the class has a __setattr__() or __delattr__() method, this is called instead of updating the instance dictionary directly. (类的成员只能通过直接赋值或 del? 应该不会这么做)\\
+getattr 调用的是 __getattribute__\\
+__getattribute__ 在访问属性的时候都会被调用, 为了防止递归调用, 都用会调用基类或 object (新式类) 的 __getattribute__\\
+__getattr__ 只会在 __getattribute__ (如果没有重定义) 抛出 AttributeError 被调用, (如果有定义的话)\\
+
 *** descriptor protocol
 | descr.__get__(self, obj, type=None) --> value |
 | descr.__set__(self, obj, value) --> None      |
@@ -159,6 +165,7 @@ class MyProperty:
         self.fdel = fdel
         return self
 #+END_SRC
+NOTE: 跟 property 的实现还是有区别的, 出现在被修饰的函数名不同时, 我的实现是前一个是最终结果, 而官方版本实现的是后一个是最终结果, (虽然不同名的不对的, 但也能看出一些东西)
 
 **** methods, class methods, static methods
 #+BEGIN_SRC python
@@ -195,8 +202,43 @@ class StaticMethod:
         return self.f
 #+END_SRC
 
-**** super
+*** super
 python 官方一直在改, 有很多不确定的东西, 有时间再深入了解
+#+BEGIN_SRC python
+class A:
+    def test(self):
+        print('hello super', self.__class__)
+
+class B(A):
+    def test(self):
+        print('hello super changed', self.__class__)
+
+    def test1(self):
+        return super()
+
+    def test2(self):
+        return super(__class__)
+
+    def test3(self):
+        return super(__class__, self)
+
+    def test4(self):
+        return super(__class__, __class__)
+
+
+obj = B()
+b1, b2, b3, b4 = obj.test1(), obj.test2(), obj.test3(), obj.test4()
+# 我的实验和理解 super 就是派生类以 (它的实例或本身) 访问基类的方式
+# super() same as super(__class__, <first argument>)
+b1.test()
+b2.test() # AttributeError: 'super' object has no attribute 'test', very little used
+b3.test()
+b4.test(obj) # hello super <class '__main__.B'>
+obj.test() # hello super changed <class '__main__.B'>
+#+END_SRC
+
+*** __new__
+__new__() is a static method (special-cased so you need not declare it as such) that takes the class of which an instance was requested as its first argument.
 
 *** others
 | in       | __contains__      |                                 |
