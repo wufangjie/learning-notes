@@ -446,6 +446,24 @@ ff()
 print([c.cell_contents for c in ff.__closure__])
    #+END_SRC
 
+** mix string, unicode and integer
+直接再解释器或用 print 都可以打印出 '\uXXXX' 对应的字体显示\\
+'\uXXXX' 是 unicode 的序号, 是连续的, python3 实现了 \u 转义, 即以其后面四位为 unicode 码的字符; 而二进制的存储 (不同的编码, 有不同的规则, 不一定连续) 不经过 decode 是没法显示的\\
+各种进制的整数,
+| 0b11, 0o11, 0x11  | (3, 9, 17) |
+| b o x             | format     |
+| bin() oct() hex() |            |
+| int(x, base=10)   |            |
+https://docs.python.org/3/library/string.html#formatspec
+
+chr 函数接受一个整数返回字符, python2 要用 unichr
+#+BEGIN_SRC python
+for i in range(0x4e00, 0x9fa6, 40):
+    print(''.join(chr(j) for j in range(i, i + 40)))
+# NOTE: 这段代码在 emacs -nw 比 gui 快多了, 这种输出比较多的还是用 -nw 运行
+#+END_SRC
+jieba 这个包里是到 0x9fd5, 但是后面的字体明显不等宽, 我觉得不是中文字\\
+
 * modules
 ** asyncio and async / await
 (普通函数, 生成器函数, 异步函数, 异步生成器函数)\\
