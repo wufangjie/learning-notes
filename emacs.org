@@ -311,6 +311,7 @@ Org mode 默认使用的是 Emacs 中自带的 Calc 这个 package 来进行计�
 #+TBLFM: @1 = remote(1, @$#$1)
 
 *** 数学公式
+输入 \, 然后 M-x pcomplete, 会弹出 org-mode 自带的特殊字符, 可能需要这一样之后没有字符
 TODO: 语法类似 mathjax 和 latex
 
 *** 段落
