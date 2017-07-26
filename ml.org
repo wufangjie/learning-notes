@@ -1,0 +1,197 @@
+#+title: machine learning
+#+author: wfj
+* Cauchy-Schwarz inequality
+(u, v)^2 <= (u, u) * (v, v) equality holds if and only if either u or v is a multiple of the other (which includes the special case that either is the zero vector)
+
+** inner product ()
+1. (u, v) = (v, u)
+2. (ku, v) = (u, kv) = k(u, v) and (u + v, w) = (u, w) + (v, w)
+3. (u, u) >= 0, (u, u) = 0 <=> u = 0
+
+** proof
+if v = 0, it is clear that we have the equality \\
+=> \\
+let z = u - (u, v) / (v, v) * v \\
+then (z, v) = 0 \\
+u = z + (u, v) / (v, v) * v \\
+(u, u) = (z, z) + 0 + ((u, v) / (v, v))^2 * (v, v) >= (u, v)^2 / (v, v) \\
+(u, u) * (v, v) >= (u, v)^2 if and only if z == 0 \\
+then u = (u, v) / (v, v) * v \\
+<= is easy
+
+* Jensen's inequality
+convex, concave 国内叫法不一, 统一用 wiki 的说法, 跟凸优化统一
+
+if f is a convex function, then\\
+f(\Sigma(pi * xi)) <= \Sigma(pi * f(xi)), \Sigma(pi) = 1, pi >= 0 i=1,2,...\\
+Equality holds if and only if x1 = x2 = ⋯ = xn or f is linear\\
+
+更一般的概率写法, f(E[X]) <= E[f(X)]\\
+证明用数学归纳法即可\\
+
+ln(x) is concave, thus ln(\Sigma(xi / n)) >= \Sigma(ln(xi)) / n\\
+=> \Sigma(xi / n) >= (e ** \Sigma(ln(xi))) ** (1/n), 即基本不等式\\
+
+* lagrange multiplier
+有一些文章用 jensen's inequality 进行证明是不对的一些极值, 应该用拉格朗日乘子\\
+我的理解是求有等式约束条件的极值, 直接对每个参数求偏导是不对的 (结果不满足约束条件), 比如 \Sigma(pi) = 1, 那么再引入一个参数乘以这个移项后等于 0 的约束条件, 可以达到代入约束条件, 减少参数, 然后求偏导一样的效果\\
+有多个约束, 但是对于不同变量的, 每次只加一项, 详见 HMM 对 aij 的估计\\
+看了 wiki, 发现这只是一点皮毛, 不过够用了\\
+
+* 样本方差和总体方差
+| 这些值作为总体的方差, 直接方差公式, 分母为 n            |
+| 这些值作为样体如何估计整体方差 (无偏估计), 分母为 n - 1 |
+
+* 错误率
+| TP True Positive (真正)  | 被预测为正的正样本 |
+| TN True Negative (真负)  | 被预测为负的负样本 |
+| FP False Positive (假正) | 被预测为正的负样本 |
+| FN False Negative (假负) | 被预测为负的正样本 |
+
+| precision 精(确)度 | TP / (TP+FP)            | 预测为正的正确率         |
+| accuracy 准确率    | (TP+TN) / (TP+TN+FP+FN) | 所有情况的正确率         |
+| recall 召回率      | TP / (TP+FN)            | 正样本的正确率           |
+| F-measure          | 2 * R * P / (R+P)       | 召回率和准确率的调和平均 |
+NOTE: F-measure also called balanced F-score F1 measure
+
+* pca
+** 准备知识
+*** 协方差
+numpy 中 var, std, cov 都有 ddof 参数用来决定 用 N, N-1 或者其他的 N-ddof\\
+var/std 默认是 0, cov 默认是 None, 此时会用另一个 bias(默认是1) 来指定\\
+区别在于, N-1 求的是样本空间的方差, 而 N 的话求的是这特定几个样本的方差\\
+cov(X, Y) = E[(X - E[X])(Y - E[Y])] = E[XY] - E[X]E[Y]\\
+var(X) = E[(X - E[X])^{2}] = E[X2] - E[X]^2\\
+\rho(X, Y) = cov(X, Y) / sqrt(var(X) * var(Y))\\
+
+*** 特征值和特征向量
+若 Av = \lambda{}v, 其中 v 为非零向量, 称 \lambda 为 A 的特征值, v 为 A 的特征向量\\
+由定义易知 A 必为方阵\\
+
+*** 正交矩阵
+若 A'A = E 或 AA' = E, 称 A 为正交矩阵\\
+有如下性质:\\
+1. A 的逆等于 A 的转置\\
+2. A 的各行是单位向量且两两正交(注: 向量的正交定义为内积为 0)\\
+3. A 的各列是单位向量且两两正交(由矩阵乘法的定义直接得出)\\
+
+*** 矩阵相似
+若存在可逆矩阵 P, 使得 P^{-1}AP = B, 称 A 与 B 相似, 记为 A ~ B\\
+具有 自反性, 对称性, 传递性\\
+相似矩阵有相同的特征多项式, 特征根和行列式\\
+
+*** 矩阵合同
+若存在可逆矩阵 C, 使得 C'AC = B, 称 A 与 B 合同\\
+具有 自反性, 对称性, 传递性\\
+两合同的矩阵, 若有一个是对称的, 则另一个必对称(注: 对称性可表述为 A' = A)\\
+
+*** 定理
+对于任意一个实对称方阵 A, 都存在一个正交矩阵 T, 使 T'AT = T^{-1}AT 成对角形\\
+对角形由特征值组成, T 由特征向量组成\\
+
+** 主要作用是降维和去噪
+** 实现过程
+对样本的协方差矩阵 C 进行奇异值分解 C * Q = Q * D
+#+BEGIN_SRC python
+def pca(data):
+    '''
+    每一行表示一个样本
+    我们要降的是指标的维, 所以做的是指标和指标间的协方差矩阵
+    '''
+    sdata = (data - np.mean(data, axis=0)) / np.std(data, axis=0, ddof=1)
+    eig, vec = np.linalg.eig(np.cov(sdata.T))
+    idx = np.argsort(eig)[::-1]
+    eig, vec = eig[idx], vec[idx] # vec 的每一列是一个特征向量
+    return eig, vec, np.dot(sdata, vec)
+#+END_SRC
+
+关于自动编码器与 PCA, 因为根据以下知识得那个变换向量是正交的,\\
+所以有 XTT' = XTT^{-1} = X 刚好满足自动编码器的定义\\
+
+** 奇异值分解和特征分解
+线性代数中, 特征分解, 又称谱分解 (Spectral decomposition) 是将矩阵分解为由其特征值和特征向量表示的矩阵之积的方法. 需要注意只有对可对角化矩阵才可以施以特征分解. 可对角化的充分必要条件是有 n 个线性无关的特征向量\\
+所有的矩阵都可以进行奇异值分解, 而只有方阵才可以进行特征值分解. 当所给的矩阵是对称的方阵, 二者的结果是相同的. 也就是说对称矩阵的特征值分解是所有奇异值分解的一个特例. 但是二者还是存在一些小的差异, 奇异值分解需要对奇异值从大到小的排序, 而且全部是大于等于零. 对于特征值分解 [d, v] = np.linalg.eig(aa), 即 A = vdv^{-1}, 其实从定义 Av = vd (特征向量(每列)乘以特征值)\\
+对于奇异值分解,其分解的基本形式为 [u, s, v] = np.linalg.svd(C), C = usv'
+
+*** 奇异值分解原理
+由上述的特征分解推广, 为了简单起见, 只考虑实数矩阵(否则需要共轭转置)\\
+首先 C'C 和 CC' 有相同重数的特征值, 证明如下:\\
+设 \lambda_{1} 和 v 是 C'C 的任意一组特征值和特征向量, 即有 C'Cv = \lambda_{1}v,\\
+\lambda_{2} 和 u 是 CC' 的任意一组特征值和特征向量, 即有 CC'u = \lambda_{2}u,\\
+则 CC'(Cv) = C(C'Cv) = C\lambda_{1}v = \lambda_{1}Cv, 即 C'C 的特征值 \lambda_{1} 也是 CC' 的特征值, 反之亦然. 以下证明特征值的重数也相同, 设 \lambda_{0} 是 C'C 的任一特征值, 关于 \lambda_{0} 的线性无关的向量组成的矩阵为 M, 有 r(M) \gt r(CM) \gt r(C'CM) = r(\lambda_{0}M), 所有的不等式都应取等号, 而由上述证明 CM 是 CC' 的特征向量组成的矩阵, 秩相等, 反之亦然, 证毕\\
+# C = U\Sigma{}V', 其中 C 是 M * N 维矩阵, U 为 M * M 维正交矩阵, \Sigma 为 M * N 维对角矩阵, V 为 N * N 维矩阵\\
+# 易知 C'C 和 CC' 均为实对称矩阵, 可以特征分解, 不妨设\\
+# 如果有上述等式成立, 则 C'C = V\Sigma'U'U\Sigma{}V' = V\Sigma'\Sigma{}V', 易知 \Sigma'\Sigma 为对角矩阵, 所以 V 就是 C'C 的特征分解的特征向量. 同理 U 是 CC' 的特征分解的特征向量, 又 C'C 和 CC' 有完全相同的(包括重数)非零特征值, 所以结论成立.\\
+# 奇异值分解还要求特征值从大到小排列, 半正定矩阵没有负特征值
+易知 C'C 和 CC' 均为实对称矩阵(半正定), 可以特征分解, C 是 M * N 维矩阵, 不妨设 M > N\\
+C'C = V\Sigma{1}V', (CV)'CV = V'C'CV = V'V\Sigma{1}V'V = \Sigma{1} (1)
+令 CV = X, X 的每列(N)分别除以 \Sigma{1} 的相应对角线元素开根号, 注意如果除数是 0, 则由 (1) 式易知(平方和为 0) CV 对应的列全部为 0, 故有 X = U\Sigma{}, C = U\Sigma{}V', 由 (1) 式知 U 是正交矩阵
+
+
+CC' = U\Sigma{2}U', 又 C'C 和 CC' 有完全相同的(包括重数)非零特征值, 所以 \Sigma{1} 是 \Sigma{2} 的子矩阵, 现取 \Sigma{2} 的前 N 列按各元素开根号记为 \Sigma, 有 (U\Sigma{}V')'U\Sigma{}V' = V\Sigma{}U'U\Sigma{}V' = V\Sigma{1}V'
+
+* 信息论 (information theory)
+TODO: 有空再补
+** 信息熵 (entropy of an information source)
+其最大值的证明, 用 jensen 不等式是不对的, 应用 k 因子法, 即在加上一项 k(\Simga{}p_{i} - 1), 然后求对 p_{i} 无限制的整个式子的极大值, 显然对每个 p_{i} 要求 k 的值是一样的, 同时我们另 k 等于正好使得在取得该极值时的 \Simga{}p_{i} = 1 即可. 这个方法也称为拉格朗日乘子法, 其实我理解的是对于一般的问题加了这一项也未必能算出极值(注: 很多 EM 算法会用到这个)
+** 联合熵 (joint entropy)
+** 条件熵 (conditional entropy)
+** 互信息 (mutual information)
+** KL 散度 (Kullback-Leibler divergence)
+非对称, 可以改进为 (D_{KL}(p||q) + D_{KL}(q||p)) / 2
+** 交叉熵 (cross entropy)
+* 优化问题算法
+核心和难点是解的表示和成本函数的定义
+** 随机搜索
+每个维度随机取值, 是评估其他优化算法的基线 (baseline)
+
+** 爬山法 (也就是梯度下降)
+随机初始解, 所有维度选择最陡维度改变, 会陷入局部极值, 各种变种都有一定的走出局部最优能力
+
+** 模拟退火
+随机初始解, 选择一个维度开始改变, 接受所有使成本变低的新解, 以一个概率 (e^{-(x_new - x_best) / T}) 接受使成本变高的值, T 被设计成随着迭代次数变多而逐渐变小
+
+** 遗传算法
+随机生成 n 个解 (称为种群, population), 然后选择一部分最优解, 淘汰其他解, 然后对这些最优解进行变异 (类似模拟退火, 不过接受所有解) 或者交叉 (类似染色体互换), 生成同等数目的新的种群, 迭代直到最大值或者收敛
+
+** 蚁群算法
+按 pheromone (信息素) 和 desirability 来随机每个蚂蚁的移动, 每个蚂蚁完成一遍后更新信息素 (包括衰减和新增, 这个新增和对应蚂蚁的 cost 成反比) 和最优解 (其实对于有的问题如果不加一些策略, 不一定每个蚂蚁都能完成), 如此循环
+
+* 数据降维和可视化
+** 集体智慧编程上的方法, 直接在固定维度上初始点, 根据与低维距离和高维距离的差异, 通过梯度下降法来移动点, 最终收敛 (总误差值比上一轮高)
+** 经典的 PCA
+** random projection
+通过 johnson lindenstrauss lemma 给出一个最小的 dim, 然后乘以一个降维的矩阵, 感觉也太随意了, 可能我理解有误
+
+** mainfold learning (sklearn.manifold)
+| MDS  | Multidimensional scaling - wiki 上有介绍 |
+| TSNE | colah's blog 技术博客上看到过            |
+
+* 常用距离和相似性
+** 欧氏距离 (euclidean distance)
+有一个变种, 先单位化 (缩放到单位圆上) 再算距离, 效果类似下面的余弦距离
+
+** 皮尔逊相关性 (pearson correlation)
+p(X, Y) = cov(X, Y) / \delta(X) / \delta(Y)
+
+** 余弦距离(cosine similarity)
+cos(\theta) = (X, Y) / (X, X)^0.5 / (Y, Y)^0.5
+
+** IoU (intersection over union) / jaccard index / Tanimoto
+用于 image detection, 稀疏向量的相似性 (非零元素的集合)
+
+* 机器学习算法
+** 感知机
+** k 近邻
+** 朴素贝叶斯
+** 决策树
+** 最大熵模型
+** 支持向量机
+** 提升方法
+** EM 算法
+** 隐马尔科夫链
+** 神经网络
+** 有限状态机
+** 层次聚类
+** kmeans
+** 条件随机场 和 贝叶斯网络 (没看不会)
