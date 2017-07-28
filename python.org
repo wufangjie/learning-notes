@@ -446,7 +446,7 @@ ff()
 print([c.cell_contents for c in ff.__closure__])
    #+END_SRC
 
-** mix string, unicode and integer
+** put string, unicode and integer together
 直接再解释器或用 print 都可以打印出 '\uXXXX' 对应的字体显示\\
 '\uXXXX' 是 unicode 的序号, 是连续的, python3 实现了 \u 转义, 即以其后面四位为 unicode 码的字符; 而二进制的存储 (不同的编码, 有不同的规则, 不一定连续) 不经过 decode 是没法显示的\\
 各种进制的整数,
@@ -705,3 +705,7 @@ def gen_data_str(data, template):
     for item in data:
         yield .format(**item)
 #+END_SRC
+** jieba
+BEMS: begin end middle single, 词的构成\\
++照理, 训练出来的初始状态, 转移矩阵的和 (或行和) 应该等于 1 才对, 不知道为什么, jieba 给出的值都是负数+ jieba 给出的是 ln 过后的值, 好处是化乘法为加法达到加速效果\\
+DAG, route 既然都是用 index 取索引, 用 list 效率应该会比 map 高不少
