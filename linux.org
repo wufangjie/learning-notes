@@ -211,6 +211,10 @@ git push origin HEAD --force
 git branch -a # 显示所有分支
 #+END_SRC
 
+*** 为别人的开源项目提交代码
+fork -> create a new branch -> edit (github 网页上直接就能改) and commit -> pull request
+如果需要修改之前的 pull request, 如果还没有被合并的话, 那么直接修改然后 commit 就可以了, 如果已经被合并了, 那就需要再提交一个新的 pull request
+
 ** file manager
 | ls    | -a -d -h -l -R          | -r -U -S -t -v -X    emacs dired sort |
 | cd    |                         |                                       |
@@ -320,7 +324,7 @@ LC_CTYPE="zh_CN.UTF-8"
 
 ** fcitx
 #+BEGIN_SRC sh
-sudo apt-get install fcitx-libpinyin fcitx-config-gtk2
+sudo apt-get install fcitx fcitx-libpinyin fcitx-config-gtk2
 #sudo apt-get install fcitx-anthy fcitx-sunpinyin
 im-config # 按提示选择 fcitx
 #+END_SRC
