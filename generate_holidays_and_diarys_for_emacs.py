@@ -68,6 +68,9 @@ output_holidays = fixed.format(sep.join(outputs[0]))
 print(output_holidays)
 
 
+# a way to present anniversary with count
+# %%(diary-anniversary 10 31 1948) Arthur's birthday (%d years old)
+
 if __name__ == '__main__':
     _path = os.path.join(os.getenv('HOME'), '.emacs.d/')
     with open(os.path.join(_path, 'my-holidays.el'), 'wt') as f:
