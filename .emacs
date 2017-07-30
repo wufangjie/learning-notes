@@ -13,7 +13,7 @@
                       (font-spec :family chinese
 				 :size chinese-size))))
 (if window-system
-    (set-font "monaco" "hannotate sc" 16 20))
+    (set-font "monaco" "hannotate sc" 15 18))
 
 
 ;; =====================================================================
@@ -24,28 +24,28 @@
 (setq show-paren-style 'parentheses)
 
 (setq inhibit-startup-message 0)
+(setq frame-title-format "%b")
 (tool-bar-mode 0)
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
 
-(setq frame-title-format "%b")
-(setq column-number-mode t)
 (global-linum-mode t)
+(setq column-number-mode t)
 (setq scroll-margin 3
       scroll-conservatively 10000)
 
 (setq blink-cursor-mode nil)
-;(setq blink-cursor-delay 1)
+; (setq blink-cursor-delay 1)
 
-
-(set-frame-parameter (selected-frame) 'alpha '(90 50))
-
+(set-frame-parameter (selected-frame) 'alpha '(95 95))
 
 (setq x-select-enable-clipboard t)  ; shared with clipboard
 (setq make-backup-files nil)  ; no ~ file
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
 (setq ediff-split-window-function 'split-window-horizontally)
 (setq org-src-fontify-natively t)  ; highlight the org-mode's source code
+
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
 
 (mapc (lambda (mode)
         (font-lock-add-keywords
@@ -55,19 +55,32 @@
       '(python-mode org-mode emacs-lisp-mode c-mode))
 
 
+(unless window-system
+  (defun clipboard-save ()
+    (interactive)
+    (call-process-region (point-min) (point-max)
+			 "xsel" nil 0 nil "--clipboard" "--input")))
+
+
 ;; =====================================================================
 ;; `global-kbd'
 ;; =====================================================================
-(global-unset-key (kbd "M-}"))
-(global-unset-key (kbd "M-{"))
-(global-set-key (kbd "M-]") 'forward-paragraph)
-(global-set-key (kbd "M-[") 'backward-paragraph)
+; use M-x suspend-frame instead of shortcuts, it's dangerous
+(global-unset-key (kbd "C-z"))
+(global-unset-key (kbd "C-x C-z"))
 
-(global-set-key (kbd "C-l")
-		(lambda ()
-		  (interactive)
-		  (recenter-top-bottom)
-		  (redraw-display)))
+;; ;; If you use emacs -nw, M-[ kbd will drive you crazy
+;; (global-unset-key (kbd "M-}"))
+;; (global-unset-key (kbd "M-{"))
+;; (global-set-key (kbd "M-]") 'forward-paragraph)
+;; (global-set-key (kbd "M-[") 'backward-paragraph)
+
+(if window-system
+    (global-set-key (kbd "C-l")
+		    (lambda ()
+		      (interactive)
+		      (recenter-top-bottom)
+		      (redraw-display))))
 
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
@@ -94,41 +107,110 @@
 ;; `color'
 ;; useful functions: list-color-display list-faces-display describe-face
 ;; =====================================================================
-(set-background-color "#111111")
+(set-background-color "#131926")
 (set-foreground-color "#ffffff")
-;(set-face-foreground 'region "#ffffff")
-(set-face-background 'region "#228b22")
-
-
+;ShortcutsNoMnemonics=TRUE ;#98bff3
 ;; (:overline t) the heights not equal
 ;; (:box (:line-width -1)) not monospaced, not as elisp's doc say, it's a bug
 ;; :box (:line-width -1 :style "released-button")))) t)
-(custom-set-faces
- '(font-lock-builtin-face ((t (:foreground "#ffbbff"))) t)
- '(font-lock-comment-face ((t (:foreground "#66cd00"))) t)
- '(font-lock-constant-face ((t (:foreground "#ffb90f" :weight bold))) t)
- '(font-lock-function-name-face ((t (:background "#4f94cd" :underline t))) t)
- '(font-lock-keyword-face ((t (:foreground "#00ffff" :weight bold))) t)
- '(font-lock-string-face ((t (:foreground "#ffa07a"))) t)
- '(font-lock-type-face ((t (:foreground "#9aff9a" :weight bold))) t)
- '(font-lock-variable-name-face ((t (:foreground "#ffec8b" :bold t))) t)
- '(holiday ((t (:background "#4f94cd" :underline t))) t)
- '(diary ((t (:foreground "#000000" :background "#ffbbff" :underline t))) t)
- '(linum ((t (:foreground "#333333" :underline t))) t)
- '(button ((t (:foreground "#4f94cd" :underline t))) t)
- '(highlight ((t (:foreground "#ffffff" :background "#66cd00"))) t)
- '(isearch ((t (:foreground "#4f94cd" :background "#ffffff" :underline t))) t)
- '(lazy-highlight ((t (:foreground "#ffffff" :background "#4f94cd"))) t)
- '(popup-face ((t (:foreground "#000000" :background "#d3d3d3"))) t)
- '(popup-tip-face ((t (:foreground "#ffffff" :background "#4f94cd"))) t)
- '(popup-summary-face ((t (:foreground "#4f94cd" :background "#d3d3d3"))) t)
- '(cursor ((t (:background "#ffffff"))) t)
- '(org-block ((t (:foreground "#ffffff"))) t)
- ;'(org-table ((t (:foreground "#"))) t)
- '(isearch-fail ((t (:foreground "#ffffff" :background "#ee0000"))) t)
- '(minibuffer-prompt ((t (:inherit font-lock-function-name-face))) t)
- '(show-paren-mismatch ((t (:inherit isearch-fail))) t)
- )
+
+(unless window-system
+  ; black red green yellow blue magenta cyan white
+  (custom-set-faces
+   '(font-lock-builtin-face ((t (:foreground "magenta" :bold t))) t)
+   '(font-lock-comment-face ((t (:foreground "green"))) t)
+   '(font-lock-constant-face ((t (:foreground "yellow" :bold t))) t)
+   '(font-lock-function-name-face ((t (:background "blue" :underline t))) t)
+   '(font-lock-keyword-face ((t (:foreground "cyan" :bold t))) t)
+   '(font-lock-string-face ((t (:foreground "yellow"))) t)
+   '(font-lock-type-face ((t (:foreground "green" :bold t))) t)
+   '(font-lock-variable-name-face ((t (:foreground "blue" :bold t))) t)
+   '(font-lock-warning-face ((t (:foreground "magenta" :bold t))) t)
+
+   '(link ((t (:inherit font-lock-function-name-face))) t)
+   '(link-visited ((t (:foreground "black" :background "magenta" :underline t))) t)
+   '(region ((t (:background "blue"))) t)
+   '(shadow ((t (:foreground "cyan"))) t)
+   '(error ((t (:foreground "red" :bold t))) t)
+   '(cursor ((t (:background "white"))) t)
+   '(org-block ((t (:foreground "white"))) t)
+   '(org-table ((t (:foreground "blue"))) t)
+   '(linum ((t (:foreground "black" :underline t))) t)
+   '(isearch ((t (:foreground "white" :background "green"))) t)
+   '(isearch-fail ((t (:foreground "white" :background "red"))) t)
+   '(highlight ((t (:inherit isearch))) t)
+   '(lazy-highlight ((t (:foreground "white" :background "blue"))) t)
+   '(popup-face ((t (:foreground "black" :background "cyan"))) t)
+   '(popup-summary-face ((t (:foreground "blue" :background "cyan"))) t)
+   '(popup-tip-face ((t (:foreground "white" :background "blue"))) t)
+   '(popup-menu-selection-face ((t (:inherit popup-tip-face))) t)
+   '(popup-selection-face ((t (:inherit popup-tip-face))) t)
+
+   '(holiday ((t (:inherit link))) t)
+   '(diary ((t (:inherit link-visited))) t)
+   '(button ((t (:inherit link))) t)
+   '(minibuffer-prompt ((t (:inherit link))) t)
+   '(eshell-prompt ((t (:inherit link))) t)
+   '(show-paren-match ((t (:inherit isearch :bold t))) t)
+   '(show-paren-mismatch ((t (:inherit isearch-fail :bold t))) t)
+   '(warning ((t (:inherit font-lock-warning-face))) t)
+   '(success ((t (:inherit font-lock-type-face))) t)
+   ))
+
+(if window-system
+  ; black red green yellow blue magenta cyan white
+  (custom-set-faces
+   '(font-lock-builtin-face ((t (:foreground "#ffbbff" :bold t))) t)
+   '(font-lock-comment-face ((t (:foreground "#66cd00"))) t)
+   '(font-lock-constant-face ((t (:foreground "#ffb90f" :bold t))) t)
+   '(font-lock-function-name-face ((t (:background "#4f94cd" :underline t))) t)
+   '(font-lock-keyword-face ((t (:foreground "#00ffff" :bold t))) t)
+   '(font-lock-string-face ((t (:foreground "#ffa07a"))) t)
+   '(font-lock-type-face ((t (:foreground "#9aff9a" :bold t))) t)
+   '(font-lock-variable-name-face ((t (:foreground "#ffec8b" :bold t))) t)
+   '(font-lock-warning-face ((t (:foreground "#ffbbff" :bold t))) t)
+
+   '(link ((t (:inherit font-lock-function-name-face))) t)
+   '(link-visited ((t (:foreground "#000000" :background "#ffbbff" :underline t))) t)
+   '(region ((t (:background "#4f94cd"))) t)
+   '(shadow ((t (:foreground "#d3d3d3"))) t)
+   '(error ((t (:foreground "#ff3030" :bold t))) t)
+   '(cursor ((t (:background "#ffffff"))) t)
+   '(org-block ((t (:foreground "#ffffff"))) t)
+   '(org-table ((t (:foreground "#4f94cd"))) t)
+   '(linum ((t (:foreground "#000000" :underline t))) t)
+   '(isearch ((t (:foreground "#ffffff" :background "#66cd00"))) t)
+   '(isearch-fail ((t (:foreground "#ffffff" :background "#ff3030"))) t)
+   '(highlight ((t (:inherit isearch))) t)
+   '(lazy-highlight ((t (:foreground "#ffffff" :background "#4f94cd"))) t)
+   '(popup-face ((t (:foreground "#000000" :background "#d3d3d3"))) t)
+   '(popup-summary-face ((t (:foreground "#4f94cd" :background "#d3d3d3"))) t)
+   '(popup-tip-face ((t (:foreground "#ffffff" :background "#4f94cd"))) t)
+   '(popup-menu-selection-face ((t (:inherit popup-tip-face))) t)
+   '(popup-selection-face ((t (:inherit popup-tip-face))) t)
+
+   '(holiday ((t (:inherit link))) t)
+   '(diary ((t (:inherit link-visited))) t)
+   '(button ((t (:inherit link))) t)
+   '(minibuffer-prompt ((t (:inherit link))) t)
+   '(eshell-prompt ((t (:inherit link))) t)
+   '(show-paren-match ((t (:inherit isearch :bold t))) t)
+   '(show-paren-mismatch ((t (:inherit isearch-fail :bold t))) t)
+   '(warning ((t (:inherit font-lock-warning-face))) t)
+   '(success ((t (:inherit font-lock-type-face))) t)
+
+   '(ediff-even-diff-A ((t (:background "#666666"))) t)
+   '(ediff-even-diff-Ancestor ((t (:background "#666666"))) t)
+   '(ediff-even-diff-B ((t (:background "#666666"))) t)
+   '(ediff-even-diff-C ((t (:background "#666666"))) t)
+   '(ediff-odd-diff-A ((t (:background "#666666"))) t)
+   '(ediff-odd-diff-Ancestor ((t (:background "#666666"))) t)
+   '(ediff-odd-diff-B ((t (:background "#666666"))) t)
+   '(ediff-odd-diff-C ((t (:background "#666666"))) t)
+   ))
+
+
+
 
 
 ;; =====================================================================
@@ -146,6 +228,8 @@
 	    (setq calendar-mark-holidays-flag t)
 	    (setq diary-file "~/.emacs.d/my-diary.txt")
 	    ))
+
+(add-hook 'calendar-today-visible-hook 'calendar-star-date)
 
 
 ;; =====================================================================
@@ -310,6 +394,7 @@
 	 data ("head"    "#!/usr/bin/python3\n# -*- coding: utf-8 -*-\n\n"
 	       "main"    "if __name__ == '__main__':\n    "
 	       "path"    "import os\n\n\ntry:\n    path = os.path.split(os.path.realpath(__file__))[0]\nexcept NameError:\n    path = os.getcwd() or os.getenv('PWD')\n\n"
+	       "pdb"     "import pdb; pdb.set_trace()\n"
 	       )))
 
 (defun insert-python-template ()
