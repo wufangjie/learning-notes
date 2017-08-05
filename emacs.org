@@ -1021,6 +1021,12 @@ strings, vectors, char-tables and bool-vectors
 | string-to-number |                                      |           |
 | number-to-string |                                      |           |
 
+*** backquote `
+功能类似 '\\
+配合 , 使用, 表示 , 之后的元素需要被求值\\
+即使 , 在更深层的嵌套里, 也能起同样的作用\\
+配合 ,@ 使用表示求值去括号
+
 ** 帮助
 | describe-bindings |
 | describe-function |
