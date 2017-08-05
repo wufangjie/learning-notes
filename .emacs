@@ -13,7 +13,7 @@
                       (font-spec :family chinese
 				 :size chinese-size))))
 (if window-system
-    (set-font "monaco" "hannotate sc" 15 18))
+    (set-font "monaco" "hannotate sc" 18 22))
 
 
 ;; =====================================================================
@@ -40,9 +40,9 @@
 (set-frame-parameter (selected-frame) 'alpha '(95 95))
 
 (setq x-select-enable-clipboard t)  ; shared with clipboard
-(setq make-backup-files nil)  ; no ~ file
+(setq make-backup-files nil)        ; no ~ file
 (setq ediff-split-window-function 'split-window-horizontally)
-(setq org-src-fontify-natively t)  ; highlight the org-mode's source code
+(setq org-src-fontify-natively t)   ; highlight the org-mode's source code
 
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
@@ -128,7 +128,8 @@
    '(font-lock-warning-face ((t (:foreground "magenta" :bold t))) t)
 
    '(link ((t (:inherit font-lock-function-name-face))) t)
-   '(link-visited ((t (:foreground "black" :background "magenta" :underline t))) t)
+   '(link-visited
+     ((t (:foreground "black" :background "magenta" :underline t))) t)
    '(region ((t (:background "blue"))) t)
    '(shadow ((t (:foreground "cyan"))) t)
    '(error ((t (:foreground "red" :bold t))) t)
@@ -171,14 +172,14 @@
    '(font-lock-warning-face ((t (:foreground "#ffbbff" :bold t))) t)
 
    '(link ((t (:inherit font-lock-function-name-face))) t)
-   '(link-visited ((t (:foreground "#000000" :background "#ffbbff" :underline t))) t)
+   '(link-visited
+     ((t (:foreground "#000000" :background "#ffbbff" :underline t))) t)
    '(region ((t (:background "#4f94cd"))) t)
    '(shadow ((t (:foreground "#d3d3d3"))) t)
    '(error ((t (:foreground "#ff3030" :bold t))) t)
    '(cursor ((t (:background "#ffffff"))) t)
    '(org-block ((t (:foreground "#ffffff"))) t)
    '(org-table ((t (:foreground "#4f94cd"))) t)
-   '(linum ((t (:foreground "#000000" :underline t))) t)
    '(isearch ((t (:foreground "#ffffff" :background "#66cd00"))) t)
    '(isearch-fail ((t (:foreground "#ffffff" :background "#ff3030"))) t)
    '(highlight ((t (:inherit isearch))) t)
@@ -199,6 +200,7 @@
    '(warning ((t (:inherit font-lock-warning-face))) t)
    '(success ((t (:inherit font-lock-type-face))) t)
 
+   '(linum ((t (:foreground "#666666" :underline t))) t)
    '(ediff-even-diff-A ((t (:background "#666666"))) t)
    '(ediff-even-diff-Ancestor ((t (:background "#666666"))) t)
    '(ediff-even-diff-B ((t (:background "#666666"))) t)
@@ -310,30 +312,34 @@
 ;; fast search keywords on internet, fast open file
 ;; TODO? use`open' for mac, `start' for windows instead of `xdg-open'
 ;; =====================================================================
-(setq fast-search-hash-table
-      #s(hash-table
-	 test equal
-	 data ("baidu"         "https://www.baidu.com/s?wd=%s"
-	       "bing"          "https://www.bing.com/search?q=%s"
-	       "bing-global"   "https://global.bing.com/search?q=%s&setmkt=en-us&setlang=en-us&FORM=SECNEN"
-	       "bing-dict"     "https://www.bing.com/dict/search?q=%s"
-	       "douban"        "https://www.douban.com/search?q=%s"
-	       "douban-book"   "https://book.douban.com/subject_search?search_text=%s&cat=1001"
-	       "douban-movie"  "https://movie.douban.com/subject_search?search_text=%s&cat=1002"
-	       "github"        "https://github.com/search?q=%s"
-	       "jingdong"      "https://search.jd.com/Search?keyword=%s&enc=utf-8"
-	       "stackoverflow" "https://stackoverflow.com/search?q=%s"
-	       "taobao"        "https://s.taobao.com/search?q=%s"
-	       "wiki"          "https://en.wikipedia.org/wiki/%s"
-	       "zhihu"         "https://www.zhihu.com/search?type=content&q=%s"
-	       )))
+(setq fast-search-hash-table #s(hash-table test equal))
+(dolist
+    (pair
+     `(("baidu"         . "https://www.baidu.com/s?wd=%s")
+       ("bing"          . "https://www.bing.com/search?q=%s")
+       ("bing-global"   . ,(concat "https://global.bing.com/search?q=%s"
+				  "&setmkt=en-us&setlang=en-us&FORM=SECNEN"))
+       ("bing-dict"     . "https://www.bing.com/dict/search?q=%s")
+       ("douban"        . "https://www.douban.com/search?q=%s")
+       ("douban-book"   . ,(concat "https://book.douban.com/subject_search"
+				  "?search_text=%s&cat=1001"))
+       ("douban-movie"  . ,(concat "https://movie.douban.com/subject_search"
+				  "?search_text=%s&cat=1002"))
+       ("github"        . "https://github.com/search?q=%s")
+       ("jingdong"      . "https://search.jd.com/Search?keyword=%s&enc=utf-8")
+       ("stackoverflow" . "https://stackoverflow.com/search?q=%s")
+       ("taobao"        . "https://s.taobao.com/search?q=%s")
+       ("wiki"          . "https://en.wikipedia.org/wiki/%s")
+       ("zhihu"         . "https://www.zhihu.com/search?type=content&q=%s")))
+  (puthash (car pair) (cdr pair) fast-search-hash-table))
 
 ;; ^~-:.@%+=              ; do not change
 ;; []{}                   ; i think should change
 ;; $#                     ; emacs change them
 ;;  \t\n`<>|;!?'"()*\&    ; must change
 (defun convert-to-bash-safe-file-name (name)
-  (replace-regexp-in-string "\\([][ \t\n`<>|;!?'\"()*\\&$#{}]\\)" "\\\\\\1" name))
+  (replace-regexp-in-string
+   "\\([][ \t\n`<>|;!?'\"()*\\&$#{}]\\)" "\\\\\\1" name))
   ;(replace-regexp-in-string "\\([^a-zA-Z0-9]\\)" "\\\\\\1" name))
 
 (defun fast-search ()
@@ -388,14 +394,19 @@
 ;; =====================================================================
 ;; `insert-python-template'
 ;; =====================================================================
-(setq python-template
-      #s(hash-table
-	 test equal
-	 data ("head"    "#!/usr/bin/python3\n# -*- coding: utf-8 -*-\n\n"
-	       "main"    "if __name__ == '__main__':\n    "
-	       "path"    "import os\n\n\ntry:\n    path = os.path.split(os.path.realpath(__file__))[0]\nexcept NameError:\n    path = os.getcwd() or os.getenv('PWD')\n\n"
-	       "pdb"     "import pdb; pdb.set_trace()\n"
-	       )))
+(setq python-template #s(hash-table test equal))
+(dolist
+    (pair
+     `(("head" . "#!/usr/bin/python3\n# -*- coding: utf-8 -*-\n\n")
+       ("main" . "if __name__ == '__main__':\n    ")
+       ("path" . ,(concat
+		   "import os\n\n\ntry:\n"
+		   "    path = os.path.split(os.path.realpath(__file__))[0]\n"
+		   "except NameError:\n"
+		   "    path = os.getcwd() or os.getenv('PWD')\n\n"))
+       ("pdb"  . "import pdb; pdb.set_trace()\n")))
+  (puthash (car pair) (cdr pair) python-template))
+
 
 (defun insert-python-template ()
   (interactive)
@@ -419,8 +430,3 @@
 ;; load other files
 ;; =====================================================================
 (load "~/.emacs.d/my-holidays.el")
-
-
-
-
-; TODO: hash-talbe's string is too long a line, make it short
