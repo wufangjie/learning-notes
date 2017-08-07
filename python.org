@@ -469,7 +469,7 @@ jieba 这个包里是到 0x9fd5, 但是后面的字体明显不等宽, 我觉得
 (普通函数, 生成器函数, 异步函数, 异步生成器函数)\\
 跟生成器一样, 异步函数也是通过 ret.send(None) 来驱动, 而且正常返回时也会抛出一个 StopIteration 异常, 并把返回值保存在 StopIteration 对象的 value 属性中\\
 await 只能出现在 async 修饰的函数中, 进一步后面必须要跟 Awaitable, 其作用是挂起自身等待 Awaitable 返回后继续\\
-用 @asyncio.coroutine 或 @types.corcoutine 可以装饰生成器为协程\\
+用 @asyncio.coroutine 或 @types.coroutine 可以装饰生成器为协程\\
 一般会用 asyncio 库的事件循环来调度:
 #+BEGIN_SRC python
 loop = asyncio.get_event_loop()
@@ -709,3 +709,5 @@ def gen_data_str(data, template):
 BEMS: begin end middle single, 词的构成\\
 +照理, 训练出来的初始状态, 转移矩阵的和 (或行和) 应该等于 1 才对, 不知道为什么, jieba 给出的值都是负数+ jieba 给出的是 ln 过后的值, 好处是化乘法为加法达到加速效果\\
 DAG, route 既然都是用 index 取索引, 用 list 效率应该会比 map 高不少
+** numpy
+use &, |, ~ instead of np.logical_and, np.logical_or, np.logical_not, I forgot these three are binary operators sometimes.
