@@ -96,6 +96,7 @@
 ;; =====================================================================
 (setq python-shell-interpreter "python3")
 (add-hook 'python-mode-hook 'hs-minor-mode)
+(add-hook 'python-mode-hook 'turn-on-orgtbl)
 (add-hook 'inferior-python-mode-hook
 	  (lambda ()
 	    (outline-minor-mode t)
@@ -423,7 +424,11 @@
 (add-hook 'sql-interactive-mode-hook (lambda () (setq truncate-lines t)))
 
 
-
+;; =====================================================================
+;; `gnu/linux' `darwin' `windows-nt'
+;; =====================================================================
+(if (string-equal system-type "gnu/linux")
+    (call-process-shell-command "xmodmap ~/.xmodmap") nil 0)
 
 
 ;; =====================================================================
