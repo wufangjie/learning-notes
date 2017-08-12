@@ -132,6 +132,12 @@ C-digits C-u digit-your-want-to-repeat
 
 ** python mode 的文件如果有打开解释器的话, 按 ESC TAB, 会在 *Completions* buffer 打开所有的补全, 就像在解释器里直接按 TAB 一样
 
+** 在其他 mode 使用 org-table
+M-x orgtbl-mode 或者在 .emacs 文件中添加
+#+BEGIN_SRC emacs-lisp
+(add-hook 'python-mode-hook 'turn-on-orgtbl)
+#+END_SRC
+
 * paragraph
 | M-{ | M-[, backward-paragraph |
 | M-} | M-], forward-paragraph  |
