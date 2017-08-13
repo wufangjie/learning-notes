@@ -96,7 +96,6 @@
 ;; =====================================================================
 (setq python-shell-interpreter "python3")
 (add-hook 'python-mode-hook 'hs-minor-mode)
-(add-hook 'python-mode-hook 'turn-on-orgtbl)
 (add-hook 'inferior-python-mode-hook
 	  (lambda ()
 	    (outline-minor-mode t)
