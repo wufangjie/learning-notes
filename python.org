@@ -659,6 +659,10 @@ warnings.warn(message, category=None, stacklevel=1, source=None)
 
 * packages (一些文档里找不到或很难找到的 tricks)
 ** matplotlib
+有的图是在老的图上画 (新建用 plt.figure())\\
+有的则是会新建一张图 (不能绑定到 f, 需要特定的对象, 即不能用 f.show())\\
+*** use f.show() instead of plt.show()
+缺点是会新建一张图的没法显示, 然后调用 plt.show() 会一起显示
 #+BEGIN_SRC python
 import matplotlib.pyplot as plt
 
@@ -666,6 +670,18 @@ f = plt.figure(figsize=(16, 10))
 f.show()
 
 f.canvas.draw() # 重画
+#+END_SRC
+
+*** interactvie mode
+推荐这种
+#+BEGIN_SRC python
+import matplotlib.pyplot as plt
+plt.ion() # plt.ioff() on/off
+#+END_SRC
+
+#+BEGIN_SRC python
+import matplotlib
+matplotlib.interactive(True)
 #+END_SRC
 
 ** mysql-connector-python-rf
@@ -705,9 +721,20 @@ def gen_data_str(data, template):
     for item in data:
         yield .format(**item)
 #+END_SRC
+
 ** jieba
 BEMS: begin end middle single, 词的构成\\
 +照理, 训练出来的初始状态, 转移矩阵的和 (或行和) 应该等于 1 才对, 不知道为什么, jieba 给出的值都是负数+ jieba 给出的是 ln 过后的值, 好处是化乘法为加法达到加速效果\\
 DAG, route 既然都是用 index 取索引, 用 list 效率应该会比 map 高不少
+
 ** numpy
 use &, |, ~ instead of np.logical_and, np.logical_or, np.logical_not, I forgot these three are binary operators sometimes.
+** seaborn
+#+BEGIN_SRC python
+class Dummy_sns:
+    def __getattribute__(self, key):
+        return super().__getattribute__('__dummy__')
+
+    def __dummy__(self, *args, **kwargs):
+        return self
+#+END_SRC
