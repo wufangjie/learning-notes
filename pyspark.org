@@ -4,8 +4,8 @@
 + RDD 支持两种操作 transformation, action. transformation 由一个 RDD 生成一个新的 RDD; action 会对 RDD 操作计算出一个结果
 + 惰性求值, 减少不必要的开销, action 的时候才进行一次性计算
 + RDD.persist() 缓存这个 RDD, 可以让多个 action 重用同一个 RDD, 移除缓存为 RDD.unpersist()
-+ 序列化, 存储级别等等需要进一步研究
-+ foreach 返回 None, 所以一般是利用函数的副作用, 比如 print, accumulator
++ 序列化, 存储级别等等需要进一步研究 (RDD.persist(), RDD.cache())
++ foreach foreachPartition 是 action (强制计算 RDD.count()), 返回 None, 所以一般是利用函数的副作用, 比如 print, accumulator. 应该是没有只保证运行一次的, 可能在 accumulator 中实现, 待细看
 + fold 和 aggregate 可能会比 reduce 稍快一点, 因为不用为每个元素新建对象?
 
 * 两种最常用的创建 RDD 的方式
@@ -19,14 +19,15 @@ sc.stop() # shut down
 #+END_SRC
 
 * 分区
++ RDD 一旦创建就无法修改, 所以所有的方法都是返回一个新的 RDD
 + repartition 会进行 shuffle, 如果只是为了减少分区可以用 coalesce 避免 shuffle
 + repartition 只会改变分区的个数, 不能改变分区的方法
-+ partitionBy(numPartitions, partitionFunc) 返回一个新的 RDD, RDD 一旦创建就无法修改
-+ partitionFunc 只能作用于键值对; 且以键作为函数参数, 返回哈希值; 一般要与 persist 联用, 否则会一直重新分区, 起不到分区带来的好处
++ partitionBy(numPartitions, partitionFunc)
++ partitionFunc 只能作用于键值对; 且以键作为函数参数, 返回哈希值; 一般要与 persist 联用, 否则会一直重新分区, 起不到分区带来的好处; 在 sortByKey 中, partitionFunc 返回的是分区号, 涉及到和 java 交互, 我没看, 但猜想 collect 是按分区号从小到大返回的
 + map, flatMap, mapPartitions, mapPartitionsWithIndex 都有 preservesPartitions 参数, 在函数不改变 key 的情况下, 可以保持分区不变
 + 很多函数都隐式调用了 mapPartitions, 需要每个分区返回的是一个 iterator 或 generator
 + Spark 中所有的键值对 RDD 都可以进行分区。系统会根据一个针对键的函数对元素进行分组。尽管 Spark 没有给出显示控制每个键具体落在哪一个工作节点上的方法(部分原因是 Spark 即使在某些节点失败时依然可以工作), 但 Spark 可以确保同一组的键出现在同一个节点上。
-+ 可以从分区中受益的函数 cogroup, groupWith, join, leftOuterJoin, rightOuterJoin, groupByKey, reduceByKey, combineByKey, partitionBy, -sort-, mapValues, flatMapValues
++ +可以从分区中受益的函数 cogroup, groupWith, join, leftOuterJoin, rightOuterJoin, groupByKey, reduceByKey, combineByKey, partitionBy, -sort-, mapValues, flatMapValues+
 
 * 共享变量
 ** accumulator
@@ -34,10 +35,18 @@ sc.stop() # shut down
 |-----------------------------------------+----------|
 | value                                   | 常用属性 |
 
-需要在在 spark 传递的函数中用 global 声明\\
+需要在在 spark 传递的函数中用 global 声明, 但如果是调用 add 函数的话不用声明\\
+#+BEGIN_SRC python
+rdd = sc.parallelize(range(10))
+a = sc.accumulator(1)
+#rdd.foreach(lambda x: a.add(x)) # 46
+#rdd.foreach(lambda x: a = a + x) # 1
+#rdd.foreach(lambda x: a += x) # 1
+#+END_SRC
 需要满足交换率和结合率\\
 只有驱动器程序能通过 value 属性访问累加器的值, 工作节点不用知道累加器的值, 而是通过交换率和结合率计算最终结果, 从而减少通信。\\
-累加器不保证每个任务只修改一次(除非使用 foreach), 因此转化操作中的累加器最好只在调试时使用\\
+累加器不保证每个任务只修改一次 (除非使用 foreach), 因此转化操作中的累加器最好只在调试时使用\\
+整数, 浮点数, 复数, 不用指定 accum_param, 更复杂的需要用 pyspark.accumulators 模块的 AccumulatorParam 类继承\\
 
 ** broadcast
 用来高效分发较大的对象
@@ -78,9 +87,9 @@ sc.stop() # shut down
 | countByValue()                              | 返回 {值: 值个数} 字典         |
 | take(num)                                   | 会访问尽量少的分区, 返回 list  |
 | takeSample(withReplacement, num, seed=None) | 甚用, 所有数据都会被加载到内存 |
-| takeOrdered(num, key=None)                  | 同 top 只不过是从小到大        |
-| first()                                     | 空 RDD 会报错                  |
-| top(num, key=None)                          | 从大到小, 调用 takeOrdered?    |
+| takeOrdered(num, key=None)                  | 最小 num 个, nsmallest         |
+| first()                                     | take(1), 空 RDD 会报错         |
+| top(num, key=None)                          | 最大 num 个, nlargest          |
 | getNumPartitions()                          | 获取分区数                     |
 |---------------------------------------------+--------------------------------|
 | foreach(f)                                  |                                |
@@ -103,12 +112,13 @@ sc.stop() # shut down
 | join(...)                   | 参数同上, 直接 inner join on key                |
 | leftOuterJoin(...)          | 参数同上, None 补齐                             |
 | rightOuterJoin(...)         | 参数同上, None 补齐                             |
+| fullOuterJoin(...)          | 参数同上, None 补齐                             |
 | cogroup(...)                | 参数同上, 先 groupByKey, 再 outer join, [] 补齐 |
 | groupWith(other[, *others]) | cogroup 的多元版本, 不能指定分区数              |
 |-----------------------------+-------------------------------------------------|
 | collectAsMap()              | action, 等价于 dict(collect())                  |
 | countByKey()                | action                                          |
-| lookup(key)                 | action, 返回 groupByKey 之后该 key 对应的值     |
+| lookup(key)                 | action, 返回所有 key 对应的值的列表             |
 #+BEGIN_SRC python
 combineByKey(createCombiner, mergeValue, mergeCombiners, numPartitions=None, partitionFunc=<function portable_hash at 0x7f9aa48de730>)
 # 前三个参数都是函数
@@ -117,34 +127,77 @@ combineByKey(createCombiner, mergeValue, mergeCombiners, numPartitions=None, par
 # 第三个函数是把每个分区的结果转化成最终结果
 #+END_SRC
 
-| 按分区执行函数, 分区元素的迭代器 => 结果的迭代器     |                          |
-|------------------------------------------------------+--------------------------|
-| mapPartitions(f, preservesPartitioning=False)        | 参数为分区元素的迭代器   |
-| mapPartitionsWithIndex(f, preservesPartitions=False) | 之前再加一个分区的 index |
-| mapPartitionsWithSplit(f, preservesPartitions=False) | deprecated, 完全同上     |
-|------------------------------------------------------+--------------------------|
-| foreachPartition(f)                                  |                          |
+| 按分区执行函数, 分区元素的生成器 => 结果的生成器 |                          |
+|--------------------------------------------------+--------------------------|
+| mapPartitions                                    | 参数为分区元素的迭代器   |
+| mapPartitionsWithIndex                           | 之前再加一个分区的 index |
+| mapPartitionsWithSplit                           | deprecated, 完全同上     |
+|--------------------------------------------------+--------------------------|
+| foreachPartition(f)                              |                          |
+
+
+| zip             | assume same partitions and same counts |
+| zipWithIndex    |                                        |
+| zipWithUniqueId |                                        |
 
 * 数值操作
-| stats()              | 返回 StatCounter 对象, 包括下述成员                |
-|----------------------+----------------------------------------------------|
-| count()              |                                                    |
-| mean()               |                                                    |
-| sum()                |                                                    |
-| max()                | rdd.min(key=None)                                  |
-| min()                | rdd.min(key=None)                                  |
-| variance()           |                                                    |
-| sampleVariance()     | 样本方差, 这些数据是样本时估计的总体方差, 所以较大 |
-| stdev()              |                                                    |
-| sampleVariance()     |                                                    |
-|----------------------+----------------------------------------------------|
-| m2                   | variance() * count()                               |
-| mu                   | mean()                                             |
-| n                    | count()                                            |
-| maxValue             | max()                                              |
-| minValue             | min()                                              |
-|----------------------+----------------------------------------------------|
-| asDict(sample=False) | 返回一些统计量的字典, 没有返回的都能简单推算出     |
-| copy()               |                                                    |
-| merge(value)         |                                                    |
-| mergeStats(other)    |                                                    |
+| stats()              | 返回 StatCounter 对象, 包括下述成员                   |
+|----------------------+-------------------------------------------------------|
+| count()              | 这部分的所有函数都可以直接用 RDD 调用, 次数多最好不要 |
+| mean()               |                                                       |
+| sum()                |                                                       |
+| max()                | rdd.min(key=None), key is compare function            |
+| min()                | rdd.min(key=None)                                     |
+| variance()           |                                                       |
+| sampleVariance()     | 样本方差, 这些数据是样本时估计的总体方差, 所以较大    |
+| stdev()              |                                                       |
+| sampleStdev()        |                                                       |
+|----------------------+-------------------------------------------------------|
+| m2                   | variance() * count()                                  |
+| mu                   | mean()                                                |
+| n                    | count()                                               |
+| maxValue             | max()                                                 |
+| minValue             | min()                                                 |
+|----------------------+-------------------------------------------------------|
+| asDict(sample=False) | 返回一些统计量的字典, 没有返回的都能简单推算出        |
+| copy()               |                                                       |
+| merge(value)         |                                                       |
+| mergeStats(other)    |                                                       |
+
+* 源码
+| 核心部分               | 其余可看成利用核心部分的扩展           |
+|------------------------+----------------------------------------|
+| union                  |                                        |
+| collect                |                                        |
+|------------------------+----------------------------------------|
+| mapPartitionsWithIndex | PipelinedRDD 类, 复合函数, 惰性求值    |
+|------------------------+----------------------------------------|
+| groupBy, groupByKey    | 其实也可以用 combineByKey 实现, 但没有 |
+| combineByKey           |                                        |
+|------------------------+----------------------------------------|
+| sortByKey              |                                        |
+
+有的时候返回的是 ResultIterable 对象, 原因如下, 还不是很懂
+#+BEGIN_SRC python
+class ResultIterable(collections.Iterable):
+    """
+    A special result iterable. This is used because the standard
+    iterator can not be pickled
+    """
+    def __init__(self, data):
+        self.data = data
+        self.index = 0
+        self.maxindex = len(data)
+
+    def __iter__(self):
+        return iter(self.data)
+
+    def __len__(self):
+        return len(self.data)
+#+END_SRC
+
+* 提高
+https://spark.apache.org/docs/latest/api/python/index.html
+
+** mllib
+dataframe, transformer, estimator, pipeline
