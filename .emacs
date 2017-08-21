@@ -9,9 +9,9 @@
 			      english-size))
   (dolist (charset '(kana han symbol cjk-misc bopomofo))
     (set-fontset-font (frame-parameter nil 'font)
-		      charset
+  		      charset
                       (font-spec :family chinese
-				 :size chinese-size))))
+  				 :size chinese-size))))
 (if window-system
     (set-font "monaco" "hannotate sc" 18 22))
 
@@ -53,6 +53,12 @@
          '(("\\<\\(FIXME\\|TODO\\|NOTE\\)"
 	    1 'font-lock-warning-face prepend))))
       '(python-mode org-mode emacs-lisp-mode c-mode))
+
+
+(add-hook 'org-mode-hook
+	  (lambda ()
+	    (linum-mode -1)
+	    ))
 
 
 (unless window-system
