@@ -3,7 +3,24 @@
 * emacs25 bug 很多, 很不好用
 elsip 高亮错误\\
 python-mode 很不友好\\
-所有帮助文档的引号是狗吗, 都不等宽\\
+** 关于引号
+所有帮助文档的引号在 terminal 下不等宽\\
+英文引号中的直引号「""''」和弯引号「“”‘’」在使用上的区别, 据说是除了代码, 和表示度量单位 (时间分秒, 弧度度分秒, 英尺英寸等) 以外基本不用\\
+一些要说的, 这个单引号也太细了, 而且为什么逗号不用 8218 的细逗号, 真折腾\\
+#+BEGIN_SRC python
+full = 'ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ１２３４５６７８９０－＝！＠＃￥％＾＆＊（）＿＋［］｛｝；：＇＂＼｜，．／＜＞？｀～'
+half = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=!@#$%^&*()_+[]{};:\'"\\|,./<>?`~'
+for f, h in zip(full, half):
+    of, oh = ord(f), ord(h)
+    if of - oh != 65248:
+        print('{}: {}, {}: {}, diff: {}'.format(f, of, h, oh, of - oh))
+
+# ￥: 65509, $: 36, diff: 65473
+print(chr(36 + 65248)) # ＄
+print(chr(65509 - 65248)) # ą
+for a, b in zip('""\'\'', '“”‘’'):
+    print('{}: {}, {}: {}'.format(a, ord(a), b, ord(b)))
+#+END_SRC
 
 * use emacs -nw or gui
 被 gui 的显示折腾地有点烦了 (明明很短的一个文件 M-</> 就会有显示问题), 虽然 redraw-display 可以解决 (这个问题已经通过 重新绑定 C-l 解决, 不是改 M-> 这些, 是因为 M-v 等也可能出现相应问题)\\
