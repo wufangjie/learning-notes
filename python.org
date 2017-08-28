@@ -372,6 +372,31 @@ print(*map(lambda x: x.next, [a, b, c]), sep='\n')
 # None
 #+END_SRC
 
+** __getitem__
+别人的解法, 很惊艳, 但我的根据 sorted matrix 的方法更具有普遍性, 不仅仅是乘法表, 别人的解法, 对于乘法表可以减少一定的计算量, 所以会比我的快不少
+#+BEGIN_SRC python
+# leetcode 668. Kth Smallest Number in Multiplication Table
+class Solution(object):
+    def findKthNumber(self, m, n, k):
+        """
+        :type m: int
+        :type n: int
+        :type k: int
+        :rtype: int
+        """
+        if m > n:
+            m, n = n, m
+        class foo(object):
+            d = {}
+            def __getitem__(self, k):
+                if k not in self.d:
+                    self.d[k] = k // n * n
+                    for i in range(k // n, min(m, k)):
+                        self.d[k] += k // (i + 1)
+                return self.d[k]
+        return bisect.bisect_left(foo(), k, 1, m * n + 1)
+#+END_SRC
+
 * data structure and algorithm
 | list              |
 | dict              |
