@@ -23,6 +23,9 @@ for a, b in zip('""\'\'', '“”‘’'):
 print(',', chr(8218))
 #+END_SRC
 
+* comint
+https://www.masteringemacs.org/article/comint-writing-command-interpreter
+
 * use emacs -nw or gui
 被 gui 的显示折腾地有点烦了 (明明很短的一个文件 M-</> 就会有显示问题), 虽然 redraw-display 可以解决 (这个问题已经通过 重新绑定 C-l 解决, 不是改 M-> 这些, 是因为 M-v 等也可能出现相应问题)\\
 +打算再一次尝试 emacs -nw; 我记得原来是做过一个两者的比较, 好像有一些功能不能在 terminal 下实现, 所以放弃了, 现记录如下:+\\
