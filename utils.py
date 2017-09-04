@@ -2,9 +2,10 @@ import sys
 import numpy as np
 from functools import wraps
 
+
 try:
     import mysql.connector
-except:
+except ImportError:
     print('Warning: import mysql.connector failed', file=sys.stderr)
 
 
@@ -14,7 +15,6 @@ __all__ = ['ConnectMysqlGetCursor', 'memo',
            'sort_rows', 'sort_rows_rec',
            'intersect_loop', 'intersect',
            'unique_func', 'unique_lazy']
-
 
 
 ############################## classes ##############################
@@ -47,6 +47,7 @@ def memo(func): # sys.getsizeof(frozenset()) -> 224 bytes
         return cache[args]
     wrapper._cache = cache
     return wrapper
+
 
 def memo_with_kwargs(func):
     cache = {}
@@ -115,12 +116,13 @@ def get_rank(var, method='dense'):
 
 
 def get_index(arr, mode='both'):
-    """Get the start(and end) index of a unique arr[i] in a sorted array
+    """Get the start (and end) index of a unique arr[i] in a sorted array
 
     Parameters
     ----------
-    mode: {'both'(default), other}
+    mode: {'both' (default), other}
     """
+    arr = np.asarray(arr)
     if arr.ndim == 1:
         indexStart = np.nonzero(np.concatenate((
             [True], arr[:-1] != arr[1:])))[0]
@@ -134,7 +136,7 @@ def get_index(arr, mode='both'):
 
 
 def sort_rows(data, keyList, stable=False):
-    """Sort data(2d-array) by multi-columns, return change index.
+    """Sort data (2d-array) by multi-columns, return change index.
 
     Notes
     -----
@@ -157,6 +159,7 @@ by the second column ascending, then by the first column descending.
     if np.any(keyList == 0):
         raise Exception('keyList should be 1-indexed!')
 
+    data = np.asarray(data)
     data = data[:, abs(keyList) - 1].T
     if np.all(keyList > 0):
         return np.lexsort(data)
@@ -166,7 +169,7 @@ by the second column ascending, then by the first column descending.
 
 
 def sort_rows_rec(data, keyList, kind='quicksort', copy=True):
-    """Sort data(2d-array) by multi-columns, return change index.
+    """Sort data (2d-array) by multi-columns, return change index.
 
     (Not recommended), when data is big, toooooo slow
 
@@ -271,6 +274,7 @@ def intersect(var1, var2, sorted_asc=False):
     All of above are designed for easy to index var1 and var2,
 otherwise use numpy.intersect1d instead.
     """
+    var1, var2 = np.asarray(var1), np.asarray(var2)
     var1.shape = var2.shape = -1
     same = np.intersect1d(var1, var2, assume_unique=True)
 
@@ -291,7 +295,7 @@ def unique_func(arr, data=None, func=None, mode='index', **kwargs):
 
     Return (the start index or the value of each unique type,
             result applying func on each unique type data with kwargs).
-           If mode == 'index'(default) return the index,
+           If mode == 'index' (default) return the index,
            otherwise return the unique value instead.
     Notes
     -----
@@ -303,6 +307,7 @@ def unique_func(arr, data=None, func=None, mode='index', **kwargs):
     --------
     numpy.unique
     """
+    arr = np.asarray(arr)
     indexStart, indexEnd = get_index(arr)
     ret = indexStart if mode == 'index' else arr[indexStart]
 
@@ -315,6 +320,7 @@ def unique_func(arr, data=None, func=None, mode='index', **kwargs):
 
 def unique_lazy(arr, data=None, func=None, **kwargs):
     """A lazy wrapper of unique_func"""
+    arr = np.asarray(arr)
     if arr.ndim == 1:
         idx = np.argsort(arr)
     elif arr.ndim == 2:
