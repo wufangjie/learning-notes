@@ -472,7 +472,7 @@ print([c.cell_contents for c in ff.__closure__])
    #+END_SRC
 
 ** put string, unicode and integer together
-直接再解释器或用 print 都可以打印出 '\uXXXX' 对应的字体显示\\
+直接在解释器或用 print 都可以打印出 '\uXXXX' 对应的字体显示\\
 '\uXXXX' 是 unicode 的序号, 是连续的, python3 实现了 \u 转义, 即以其后面四位为 unicode 码的字符; 而二进制的存储 (不同的编码, 有不同的规则, 不一定连续) 不经过 decode 是没法显示的\\
 各种进制的整数,
 | 0b11, 0o11, 0x11  | (3, 9, 17) |
@@ -501,7 +501,7 @@ loop = asyncio.get_event_loop()
 loop.run_until_complete(something)
 #+END_SRC
 
-** concurrent.features
+** concurrent.futures
 #+BEGIN_SRC python
 import time
 import asyncio

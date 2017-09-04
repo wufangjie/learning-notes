@@ -9,10 +9,11 @@ from utils import memo
 class Graph():
     def __init__(self, G=None, weighted=None):
         """Always make sure every vertex in G.keys()"""
-        if G is None:
-            self.G = {}
-        else:
-            self.G = G
+        self.G = {} if G is None else G
+        # if G is None:
+        #     self.G = {}
+        # else:
+        #     self.G = G
         if weighted is None:
             if self.G and isinstance(next(iter(G.values())), dict):
                 weighted = True
@@ -222,7 +223,7 @@ def _dfs(u):
         D = {k: float('inf') for k in self.G}
         D[t] = 0
         t_met = False
-        for u in self._get_dfs_func()(s):
+        for u in self.tsort(): # self._get_dfs_func()(s): # still rec
             if u == t:
                 t_met = True
             if t_met:
@@ -441,7 +442,7 @@ def _dfs(u):
         this implement use bfs to find augmenting, ie edmonds-karp algorithm
         I do not use residual network
         """
-        matched = {u: defaultdict(int) for u in self.G}
+        matched = {u: defaultdict(float) for u in self.G}
         def find_augmenting_path():
             path = {}
             Q = deque([(s, float('inf'))])
