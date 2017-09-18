@@ -566,29 +566,36 @@ org能够识别有序列表, 无序列表和描述列表
 可以类比 dired-mode, 其他功能不常用, 还容易和记混, 不推荐使用
 
 * calendar
-| 快捷键 | 命令                       | 说明                                 |
-|--------+----------------------------+--------------------------------------|
-|        | calendar                   |                                      |
-|--------+----------------------------+--------------------------------------|
-| C-b/f  |                            | 前 / 后一天                          |
-| C-p/n  |                            | 前 / 后一星期的当天                  |
-| C-a/e  |                            | 星期的第一天 / 最后一天              |
-| M-</>  |                            | 年的第一天 / 最后一天                |
-| M/C-v  |                            | 前 / 后三个月                        |
-| x      | calendar-mark-holidays     | 高亮节假日                           |
-| u      | calendar-unmark            | 取消高亮                             |
-| .      | calendar-goto-today        | 定位到今天                           |
-| h      | calendar-cursor-holidays   |                                      |
-| a      | calendar-list-holidays     |                                      |
-| q      | kill-buffer-and-window     | 小窗口难受, 已重新绑定为当前值       |
-| M-=    | calendar-count-days-region | 先 C-space 标记, 计算天数 (包括头尾) |
-|--------+----------------------------+--------------------------------------|
-| M-a/e  |                            | 月的第一天 / 最后一天                |
-| M-{/}  |                            | 上 / 下一个月的当天                  |
-|--------+----------------------------+--------------------------------------|
-| d      | diary-view-entries         |                                      |
-| s      | diary-show-all-entries     |                                      |
-| m      | diary-mark-entries         |                                      |
+| 快捷键 | 命令                        | 说明                                    |
+|--------+-----------------------------+-----------------------------------------|
+|        | calendar                    |                                         |
+|--------+-----------------------------+-----------------------------------------|
+| C-b/f  |                             | 前 / 后一天                             |
+| C-p/n  |                             | 前 / 后一星期的当天                     |
+| C-a/e  |                             | 星期的第一天 / 最后一天                 |
+| M-</>  |                             | 年的第一天 / 最后一天                   |
+| M/C-v  |                             | 前 / 后三个月                           |
+| x      | calendar-mark-holidays      | 高亮节假日                              |
+| u      | calendar-unmark             | 取消高亮                                |
+| .      | calendar-goto-today         | 定位到今天                              |
+| h      | calendar-cursor-holidays    |                                         |
+| a      | calendar-list-holidays      |                                         |
+| q      | kill-buffer-and-window      | 小窗口难受, 已重新绑定为当前值          |
+| M-=    | calendar-count-days-region  | 先 C-space 标记, 计算天数 (包括头尾)    |
+|--------+-----------------------------+-----------------------------------------|
+| M-a/e  |                             | 月的第一天 / 最后一天                   |
+| M-{/}  |                             | 上 / 下一个月的当天                     |
+|--------+-----------------------------+-----------------------------------------|
+| d      | diary-view-entries          |                                         |
+| s      | diary-show-all-entries      |                                         |
+| m      | diary-mark-entries          |                                         |
+|--------+-----------------------------+-----------------------------------------|
+| p C    | calendar-chinese-print-date | 显示农历                                |
+| p c    | calendar-iso-print-date     |                                         |
+| g C    | calendar-chinese-goto-date  | cycle, 干支, 月, 日, 77*60+34-2017=2637 |
+| g c    | calendar-iso-goto-date      | 年, 周, 周几                            |
+| g D    | calendar-goto-day-of-year   | 年, 天                                  |
+| g d    | calendar-goto-date          | 年, 月, 日                              |
 
 * commands summary
 ** help
