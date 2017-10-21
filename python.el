@@ -2308,13 +2308,13 @@ killed."
           (accept-process-output process)
           (and pop (pop-to-buffer buffer t))
           (and internal (set-process-query-on-exit-flag process nil))
-          ;; (when (string-equal system-type "windows-nt")
-          ;;   (python-shell-send-string
-          ;;    (concat
-          ;;     "import sys;"
-          ;;     "sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer);"
-          ;;     "sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer);"
-          ;;     "sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer);")))
+          (when (string-equal system-type "windows-nt")
+            (python-shell-send-string
+             (concat
+              "import sys;"
+              "sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer);"
+              "sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer);"
+              "sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer);")))
           ))
       proc-buffer-name)))
 
@@ -2342,14 +2342,6 @@ process buffer for a list of commands.)"
      (list (python-shell-parse-command) nil t)))
   (python-shell-make-comint
    cmd (python-shell-get-process-name dedicated) show)
-  (when (string-equal system-type "windows-nt")
-    (python-shell-send-string
-     (concat
-      "import sys;"
-      "sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer);"
-      "sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer);"
-      "sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer);"
-      "print('hello world!')")))
   dedicated)
 
 (defun run-python-internal ()
