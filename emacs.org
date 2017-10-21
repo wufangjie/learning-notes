@@ -1162,6 +1162,31 @@ M-x jedi:install-server
 HKEY_LOCAL_MACHINE\SOFTWARE\
 HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\ (if x64)
 #+END_EXAMPLE
+
+** 关于编码
+先是:
+#+BEGIN_SRC emacs-lisp
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+#+END_SRC
+
+然后你会发现, interpreter 中中文出错:
+#+BEGIN_SRC python
+import sys
+print(sys.stdin.encoding) # 的编码不是 utf-8, stdout stderr 同
+#+END_SRC
+可以每次手动加:
+#+BEGIN_SRC python
+import sys
+sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
+sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer)
+sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
+#+END_SRC
+太麻烦, 所以加到解释器进程启动的时候, 即 python.el 的 python-shell-make-comint 中
+详见我该过的 python.el
+
 * 如果你也用 fcitx,
 请在 fcitx configuration 中清空所有非必要的快捷键\\
 那些快捷键比 emacs 拥有更高的优先级\\
