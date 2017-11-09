@@ -1157,10 +1157,20 @@ M-x jedi:install-server
 | C-.     | jedi:goto-definition            | not recommend                 |
 
 * for windows
+** home
 在如下注册表中创建 GNU\Emacs\HOME (字符串值, 如: E:\emacs-24.5)
 #+BEGIN_EXAMPLE
 HKEY_LOCAL_MACHINE\SOFTWARE\
 HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\ (if x64)
+#+END_EXAMPLE
+** hhkb jp remap
+在如下注册表中创建二进制值 Scancode Map, 效果同 linux 下的 .xmodmap
+#+BEGIN_EXAMPLE
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout
+#+END_EXAMPLE
+值为:
+#+BEGIN_EXAMPLE
+00,00,00,00,00,00,00,00,04,00,00,00,38,00,7B,00,1d,00,79,00,29,00,73,00,00,00,00,00
 #+END_EXAMPLE
 
 ** 关于编码
