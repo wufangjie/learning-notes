@@ -1173,6 +1173,10 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout
 00,00,00,00,00,00,00,00,04,00,00,00,38,00,7B,00,1d,00,79,00,29,00,73,00,00,00,00,00
 #+END_EXAMPLE
 
+https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
+
+https://www.win.tue.nl/~aeb/linux/kbd/scancodes-8.html#japanese
+
 ** 关于编码
 先是:
 #+BEGIN_SRC emacs-lisp
