@@ -322,6 +322,10 @@ LANG="en_US.UTF-8"
 LC_CTYPE="zh_CN.UTF-8"
 #+END_EXAMPLE
 
+** 开机启动
+xfce4-session-settings -> Application Autostart -> then add command
+试过修改 rc.local, 没有作用
+
 ** fcitx
 #+BEGIN_SRC sh
 sudo apt-get install fcitx fcitx-libpinyin fcitx-config-gtk2
@@ -572,15 +576,35 @@ keycode 97 = 0x60 0x7e
   安装即用, stackoverflow 等需要调用 google api 的网站加速
 + 最好的夜间模式 stylish
   #+BEGIN_SRC css
-browser[type="content-primary"]{background-color:black!important;}
-html{opacity:0.7!important;background:black!important;}
-body{background:white!important;}
-
-#urlbar{background:#E3EDCD!important;}
-.autocomplete-textbox-container{background:#E3EDCD!important;}
-
-@-moz-document url(about:newtab){window{background:#222222!important}}
+html {
+    opacity: 0.67 !important;
+    background: #E3EDCD !important;
+}
+body {
+    background: #E3EDCD !important;
+}
   #+END_SRC
+| 颜色   | 代码    | 数值                 |
+|--------+---------+----------------------|
+| 银河白 | #FFFFFF | rgb（255，255，255） |
+| 杏仁黄 | #FAF9DE | rgb（250，249，222） |
+| 秋叶褐 | #FFF2E2 | rgb（255，242，226） |
+| 胭脂红 | #FDE6E0 | rgb（253，230，224） |
+| 青草绿 | #E3EDCD | rgb（227，237，205） |
+| 海天蓝 | #DCE2F1 | rgb（220，226，241） |
+| 葛巾紫 | #E9EBFE | rgb（233，235，254） |
+| 极光灰 | #EAEAEF | rgb（234，234，239） |
+
+#   #+BEGIN_SRC css
+# browser[type="content-primary"]{background-color:black!important;}
+# html{opacity:0.7!important;background:black!important;}
+# body{background:white!important;}
+
+# #urlbar{background:#E3EDCD!important;}
+# .autocomplete-textbox-container{background:#E3EDCD!important;}
+
+# @-moz-document url(about:newtab){window{background:#222222!important}}
+#   #+END_SRC
 + 禁用 alt 快捷键弹出菜单栏\\
   主要影响切换输入法 fcitx, ibus 的浏览器跟随有问题, 不用, 方法如下:\\
   地址栏搜索about:config, ui.key.menuAccessKey 双击改为0, 重启浏览器
