@@ -574,6 +574,7 @@ keycode 97 = 0x60 0x7e
 ** firefox/iceweasel (直接复制 .mozilla 即可)
 + Decentraleyes
   安装即用, stackoverflow 等需要调用 google api 的网站加速
++ Theme Font & Size Changer
 + 最好的夜间模式 stylish
   #+BEGIN_SRC css
 html {
