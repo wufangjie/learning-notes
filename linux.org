@@ -578,10 +578,30 @@ keycode 97 = 0x60 0x7e
 + 最好的夜间模式 stylish
   #+BEGIN_SRC css
 html {
-    opacity: 0.67 !important;
     background: #E3EDCD !important;
 }
 body {
+    background: #E3EDCD !important;
+}
+li {
+    opacity: 0.8 !important;
+}
+header {
+    opacity: 0.8 !important;
+}
+table {
+    background: #E3EDCD !important;
+}
+article {
+    opacity: 0.8 !important;
+    background: #E3EDCD !important;
+}
+#content {
+    opacity: 0.8 !important;
+    background: #E3EDCD !important;
+}
+.Card {
+    opacity: 0.8 !important;
     background: #E3EDCD !important;
 }
   #+END_SRC
