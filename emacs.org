@@ -86,6 +86,21 @@ xfce appfinder 中为正则表达式 ^e$, 绑定命令 exo-open --launch Termina
 几次崩溃经历都是在 xcfe4-terminal 中运行 emacs -nw 导致的, 反正现在用 appfinder 直接自定义命令打开 (没有外部的 terminal), 还没出现问题
 
 * tricks
+** term
+M-x term 可以跑一个 fully functional 的 terminal, (我是在研究如何用 windows 下的 emacs 跑 ubuntu on windows 的 shell 时, 找资料发现的, 可惜的是 windows 下的 terminal 都不能用这个模式)
+很长一段时间我以为是所有的 emacs 快捷键都没用了, 那还怎么玩 (M-x 都不行)
+其实不是, Term-mode 有两种输入模式 line-mode 和 char-mode
+简单来说 line-mode 就是普通的 emacs buffer, 按回车生效, char-mode 输入的每个字符都直接发送给终端, 所以 emacs 的快捷键都失效了 (除了 C-c 前缀的, 如下), 默认的就是 char-mode
+| C-c C-j | term-line-mode        | char-mode 很少有生效的按键, 实现为 toggle |
+| C-c C-k | term-char-mode        | 谁设计的快捷键这么难记                    |
+|---------+-----------------------+-------------------------------------------|
+| C-c C-c | term-interrupt-subjob |                                           |
+| C-c C-z | term-stop-subjob      |                                           |
+| C-c C-p | term-previous-prompt  |                                           |
+| C-c C-n | term-next-prompt      |                                           |
+NOTE: 其实我也不太在意多按一个回车键, 和 emacs 全局快捷键相比不值一提, 就把默认的改成 line-mode 了
+
+** sudo
 打开文件时, 在文件名前加 /sudo:: 即可以 sudo 打开
 | 快捷键      | 命令                   | 说明                                 |
 |-------------+------------------------+--------------------------------------|
