@@ -117,6 +117,11 @@ git config --global user.email "wufangjie1223@126.com"
 #+BEGIN_SRC sh
 git config --list
 #+END_SRC
+关于 windows 回车换行的问题 true, input, false
+autocrlf=input seems the best for me
+#+BEGIN_SRC sh
+git config --global core.autocrlf input
+#+END_SRC
 
 *** 连接 github
 ssh key
