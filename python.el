@@ -548,7 +548,7 @@ The type returned can be `comment', `string' or `paren'."
            "min" "next" "object" "oct" "open" "ord" "pow" "print" "property"
            "range" "repr" "reversed" "round" "set" "setattr" "slice" "sorted"
            "staticmethod" "str" "sum" "super" "tuple" "type" "vars" "zip"
-           "__import__"
+           "__import__" "pprint"
            ;; Python 2:
            "basestring" "cmp" "execfile" "file" "long" "raw_input" "reduce"
            "reload" "unichr" "unicode" "xrange" "apply" "buffer" "coerce"
@@ -2683,6 +2683,7 @@ TEMP-FILE-NAME is deleted after evaluation is performed."
      (format
       (concat
        "import codecs, os;"
+       "from pprint import pprint;"
        "__pyfile = codecs.open('''%s''', encoding='''%s''');"
        "__code = __pyfile.read().encode('''%s''');"
        "__pyfile.close();"
