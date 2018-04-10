@@ -14,7 +14,28 @@
 
 * tricks
 ** 勾选 xfce4-appearance-settings -> settings -> enable editable accelerators
-就可以在一些 xfce4 的 app 的菜单栏, 用 delete 取消绑定快捷键了, 之后就可以找相应的配置文件来自定义快捷键了
+之后就可以在一些 xfce4 的 app 的菜单栏, 用 delete 取消绑定快捷键了, 之后就可以找相应的配置文件来自定义快捷键了
+** 依赖问题
+使用 dpkg 安装时缺少依赖时
+#+BEGIN_SRC sh
+sudo apt-get -f install # --fix-broken
+#+END_SRC
+
+** 护眼色?
+| 颜色   | 代码    | 数值                 |
+|--------+---------+----------------------|
+| 银河白 | #FFFFFF | rgb（255，255，255） |
+| 杏仁黄 | #FAF9DE | rgb（250，249，222） |
+| 秋叶褐 | #FFF2E2 | rgb（255，242，226） |
+| 胭脂红 | #FDE6E0 | rgb（253，230，224） |
+| 青草绿 | #E3EDCD | rgb（227，237，205） |
+| 海天蓝 | #DCE2F1 | rgb（220，226，241） |
+| 葛巾紫 | #E9EBFE | rgb（233，235，254） |
+| 极光灰 | #EAEAEF | rgb（234，234，239） |
+
+** 开机启动管理
+xfce4-session-settings -> Application Autostart\\
+另外尝试过修改 rc.local, 但是没有作用
 
 * linux commandline
 ** wildcard
@@ -220,7 +241,7 @@ git branch -a # 显示所有分支
 fork -> create a new branch -> edit (github 网页上直接就能改) and commit -> pull request
 如果需要修改之前的 pull request, 如果还没有被合并的话, 那么直接修改然后 commit 就可以了, 如果已经被合并了, 那就需要再提交一个新的 pull request
 
-** file manager
+** file management
 | ls    | -a -d -h -l -R          | -r -U -S -t -v -X    emacs dired sort |
 | cd    |                         |                                       |
 | pwd   |                         |                                       |
@@ -244,7 +265,7 @@ fork -> create a new branch -> edit (github 网页上直接就能改) and commit
 | df    | df -h                   | Disk Free                             |
 | du    | du -ah --max-depth 1 ~/ | Disk Usage                            |
 
-** hardware manager
+** hardware management
 | dd     |                                  |            |
 | fdisk  | sudo fdisk -l /dev/sd[b-z]       |            |
 | mkfs   |                                  |            |
@@ -282,19 +303,18 @@ wget -nc -r http://www.fon.hum.uva.nl/david/ma_ssp/2007/TIMIT/
 ssh -l root xxx.xxx.xxx.xxx
 #+END_SRC
 
-*** fc-list (字体)
+*** fc-list (about font)
 #+BEGIN_SRC sh
 fc-list
 fc-list :lang=zh
 #+END_SRC
 
-** 依赖问题
-使用 dpkg 安装时缺少依赖时
-#+BEGIN_SRC sh
-sudo apt-get -f install # --fix-broken
-#+END_SRC
-
 * 一次性内容
+** 全局 emacs 快捷键 (其实主要也就是 firefox 输入, 最多加上 terminal, thunar, 直接复制 ~/.config/xfce4 即可)
+*** xfce4-settings-editor -> xsettings -> KeyThemeName 改为 Emacs 就可以了, 当初试的时候用 thunar 因为没有禁用 menubar 所以它的 alt 类型的快捷键会覆盖 emacs 快捷键, 从而产生无效的错觉, 勾选掉即可, (C-m 还是可以调出来, C-1, 2 也能正常使用)
+*** terminal 的话就更简单了, 直接 preference -> advanced 勾选掉快捷键即可
+*** 反正有的地方 C-/ 还是没用, 那用 C-z 就好了, 已经够用了
+*** 不需要 gsettings, gconftool-2
 ** 重装注意事项
 *** 常用软件
 #+BEGIN_SRC sh
@@ -326,10 +346,6 @@ C-x C-f /sudo:://etc/default/locale, 重启生效
 LANG="en_US.UTF-8"
 LC_CTYPE="zh_CN.UTF-8"
 #+END_EXAMPLE
-
-** 开机启动
-xfce4-session-settings -> Application Autostart -> then add command
-试过修改 rc.local, 没有作用
 
 ** fcitx
 #+BEGIN_SRC sh
@@ -526,6 +542,8 @@ By the way, you can just find the necessary files in /etc/alternatives/, usually
 #+BEGIN_SRC sh
 sudo update-alternatives --config libblas.so
 sudo update-alternatives --config libblas.so.3
+sudo update-alternatives --config liblapack.so
+sudo update-alternatives --config liblapack.so.3
 #+END_SRC
 to change the Blas version.
 
@@ -577,11 +595,14 @@ keycode 97 = 0x60 0x7e
 #+END_EXAMPLE
 
 ** firefox/iceweasel (直接复制 .mozilla 即可)
-+ Decentraleyes
-  安装即用, stackoverflow 等需要调用 google api 的网站加速
-+ Theme Font & Size Changer
-+ 最好的夜间模式 stylish
-  #+BEGIN_SRC css
+*** 禁用 alt 快捷键弹出菜单栏
+主要影响切换输入法 fcitx, ibus 的浏览器跟随有问题, 不用, 方法如下: 地址栏搜索about:config, ui.key.menuAccessKey 双击改为0, 重启浏览器
+
+*** Decentraleyes
+安装即用, stackoverflow 等需要调用 google api 的网站加速
+
+*** 最好的夜间模式 stylish
+#+BEGIN_SRC css
 html {
     background: #E3EDCD !important;
 }
@@ -609,33 +630,15 @@ article {
     opacity: 0.8 !important;
     background: #E3EDCD !important;
 }
-  #+END_SRC
-| 颜色   | 代码    | 数值                 |
-|--------+---------+----------------------|
-| 银河白 | #FFFFFF | rgb（255，255，255） |
-| 杏仁黄 | #FAF9DE | rgb（250，249，222） |
-| 秋叶褐 | #FFF2E2 | rgb（255，242，226） |
-| 胭脂红 | #FDE6E0 | rgb（253，230，224） |
-| 青草绿 | #E3EDCD | rgb（227，237，205） |
-| 海天蓝 | #DCE2F1 | rgb（220，226，241） |
-| 葛巾紫 | #E9EBFE | rgb（233，235，254） |
-| 极光灰 | #EAEAEF | rgb（234，234，239） |
+.body {
+    opacity: 0.8 !important;
+    background: #E3EDCD !important;
+}
+.underline {
+    color: #666666 !important;
+}
+#+END_SRC
 
-#   #+BEGIN_SRC css
-# browser[type="content-primary"]{background-color:black!important;}
-# html{opacity:0.7!important;background:black!important;}
-# body{background:white!important;}
-
-# #urlbar{background:#E3EDCD!important;}
-# .autocomplete-textbox-container{background:#E3EDCD!important;}
-
-# @-moz-document url(about:newtab){window{background:#222222!important}}
-#   #+END_SRC
-+ 禁用 alt 快捷键弹出菜单栏\\
-  主要影响切换输入法 fcitx, ibus 的浏览器跟随有问题, 不用, 方法如下:\\
-  地址栏搜索about:config, ui.key.menuAccessKey 双击改为0, 重启浏览器
-+ firebug
-+ firemacs (类 emacs 键绑定)
 + 安装 abobe flash player
   下载 install_flash_player_11_linux.x86_64.tar.gz\\
   解压：tar -xzf install_flash_player_11_linux.x86_64.tar.gz
@@ -644,6 +647,10 @@ mkdir -p ~/.mozilla/plugins/
 cp libflashplayer.so  ~/.mozilla/plugins/
   #+END_SRC
   重启 iceweasel
+*** 已不兼容且停止开发的插件
+| Theme Font & Size Changer  |
+| firebug                    |
+| firemacs (类 emacs 键绑定) |
 
 ** locale
 *** 修改语言包
@@ -681,157 +688,11 @@ LC_CTYPE="zh_CN.UTF-8"
 注2: 信息主要是提示信息, 错误信息, 状态信息, 标题, 标签, 按钮和菜单等\\
 设定 locale 就是设定 12 大类的 locale 分类属性, 即 12 个 LC_*. 除了这 12 个变量可以设定以外, 为了简便起见, 还有两个变量: LC_ALL 和 LANG. 它们之间有一个优先级的关系: LC_ALL > LC_* > LANG. 可以这么说, LC_ALL是最上级设定或者强制设定, 而LANG是默认设定值.
 
-* +已经弃用内容+
-** xfce4 快捷键 (一般不需要, 用好 application finder 就够了, 配合 eshell 快速打开文件)
-  ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml\\
-  修改完成要注销
-
-** 字体 (其实不用控制台, 自己用用的话, 复制 .fonts 就够了)
-   #+BEGIN_SRC sh
-sudo mkdir -p /usr/share/fonts/favo
-sudo cp ~/xfce4/config/.font/* /usr/share/fonts/favo/
-sudo chmod 644 /usr/share/fonts/favo/*
-
-cd /usr/share/fonts/favo/
-sudo mkfontscale   # (用来控制字体旋转缩放)
-sudo mkfontdir     # (用来控制字体粗斜体产生)
-sudo fc-cache -fv  # (建立字体缓存信息)
-   #+END_SRC
-
-** 安装 sudo (xubuntu 已自带)
-   #+BEGIN_SRC sh
-apt-get install sudo
-   #+END_SRC
-   修改配置文件 /etc/sudoers, 先赋予写权限, 再取消
-   #+BEGIN_SRC sh
-chmod u+w /etc/sudoers
-   #+END_SRC
-   其他形式参数 u/g/o r/w/x
-
-** 实现与 windows 的共享 (xubuntu 已自带)
-   #+BEGIN_SRC sh
-sudo apt-get install samba
-   #+END_SRC
-   在文件管理工具中输入 smb://192.168.1.199
-
-** 安装 debian (不支持新的 cuda, 已改用 xubuntu)
-   主要是固件不开源, 需要在命令行和图形用户界面切换, 用 C-M F2/F5
-   #+BEGIN_SRC sh
-fdisk -l
-mkdir /cdrom
-umount /cdrom
-mount /dev/sdb1 /cdrom
-   #+END_SRC
-
-** 命令行联网
-   +有了 xfce, 不再用命令行了+\\
-   #+BEGIN_SRC sh
-ifconfig -a
-ifconfig interface_x up
-wpa_supplicant -B -i interface_x -c /etc/wpa_supplicant/xxx.conf
-dhclient interface_x
-   #+END_SRC
-
-** 安装 qq, 用网页版即可
-** 禁用触摸板
-   useless, linux 下触摸板和声卡驱动都有不少问题
-   #+BEGIN_SRC sh
-sudo rmmod psmouse
-   #+END_SRC
-   #+BEGIN_SRC sh
-sudo modprobe psmouse
-   #+END_SRC
-
-** 默认文件夹改成英文
-   1. 使用命令\\
-      #+BEGIN_SRC sh
-export LANG=en_US
-xdg-user-dirs-gtk-update
-      #+END_SRC
-   2. 在弹出的窗口中询问是否将目录转化为英文路径, 同意并关闭\\
-   3. 使用命令\\
-      #+BEGIN_SRC sh
-export LANG=zh_CN
-      #+END_SRC
-   4. 重启Ubuntu, 下次进入系统后, 会提示是否把目录转化为中文, 选择不许并选择不再提示, 并取消修改\\
-
-** 配件
-   | 硬件     | 型号            | 价格 | 价格828 |
-   |----------+-----------------+------+---------|
-   | cpu      | i5-4590         | 1299 |    1319 |
-   | 主板     | 技嘉 B85M-D3H   |  499 |     479 |
-   | 主板     | 技嘉 B85M-HD3-A |      |     459 |
-   | 内存     | 威刚万紫千红    |  299 |     269 |
-   | 固态硬盘 | 浦科特 M6S 128G |  429 |     439 |
-   | 机箱     | 爱国者优果白色  |  199 |     199 |
-   | 电源     | 台达 NX350      |  219 |     229 |
-   | 显示器   | 戴尔 U2412M     | 1799 |         |
-   | 机械键盘 | 樱桃            | 太贵 |         |
-   | 显卡     | 微星gtx970      |      |    2499 |
-   |          | 微星gtx750 ti   |      |     899 |
-
-** mac
-*** mysql(本地已很少用)
-    #+BEGIN_SRC sh
-brew install mysql
-    #+END_SRC
-    启动代码
-    #+BEGIN_SRC sh
-mysql.server start
-    #+END_SRC
-    开机自动启动，第三句不知道作用
-    #+BEGIN_SRC sh
-mkdir -p ~/Library/LaunchAgents
-ln -sfv /usr/local/opt/mysql/*.plist ~/Library/LaunchAgents
-find /usr/local/Cellar/mysql/ -name "homebrew.mxcl.mysql.plist" -exec cp {} ~/Library/LaunchAgents/ \;
-launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mysql.plist
-    #+END_SRC
-
-*** 修改键盘映射
-    + preferences
-      修改修饰符 caps lock
-    + seil
-      日语键盘 必须要 enable eisuu and kana
-    + karabiner
-      use janpanese keyboard as US keyboard
-    + emacs mode
-      全局快捷键
-
-*** 快捷键
-    | ctrl + ;    | 自己设置, 调 alfred          |
-    | ctrl-tab    | safari 中用来在标签之间切换  |
-    | command-w   | safari 中关闭页面            |
-    | command-tab | 窗口切换                     |
-    | command-q   | 关闭应用, 可在窗口切换时使用 |
-
-*** defaults
-    显示全部路径
-    #+BEGIN_SRC sh
-defaults write com.apple.finder _FXShowPosixPathInTitle -bool YES
-killall Finder
-    #+END_SRC
-    加速 dock 显示
-    #+BEGIN_SRC sh
-defaults write com.apple.Dock autohide-delay -float 0
-killall Dock
-    #+END_SRC
-    恢复默认
-    #+BEGIN_SRC sh
-defaults delete com.apple.Dock autohide-delay
-    #+END_SRC
-
-** ubuntu 14.04 使用较新版 emacs(ppa)
-   #deb http://ppa.launchpad.net/andreas-h/emacs/ubuntu trusty main
-
-** ubuntu 14.04 sunpinyin 的双拼下 ue 和 iong 的韵母问题
-   直接下载安装 http://ftp.cn.debian.org/debian/pool/main/o/open-gram/sunpinyin-data_0.1.22+20131212-1_amd64.deb
-   #+BEGIN_SRC sh
-sudo dpkg -i sunpinyin-data_0.1.22+20131212-1_amd64.deb
-   #+END_SRC
-
-** C 语言自动补全
-   #+BEGIN_SRC sh
-sudo apt-get install clang libclang-dev
-export PATH=/usr/lib/llvm-3.4/include/:/usr/lib/llvm-3.4/bin/:$PATH
-echo "" | g++ -v -x c++ -E -  # 查看头文件位置
-   #+END_SRC
+** window manager
+试了一些流行的, 都有各种各样的问题, 对我来说还不具有实用性, 还是老老实实用 xfce 吧
+| stumpwm |
+| awesome |
+| xmonad  |
+| exwm    |
+开机启动的话就是修改 /usr/share/xsession/ 或 .xinitrc (一般得从 init 3 才能生效)\\
+NOTE: 16.04 源里的 stumpwm 有问题, 按 github 上的从源码安装的方法安装即可, 卸载的话在目录中用, sudo make uninstall 即可
