@@ -13,7 +13,7 @@
 #+END_SRC
 这也是为什么 emacs -nw 水平分割窗口时中间那条线会对不齐 (M-x info => org-mode), 设置 LC_CTYPE 为 en_US.UTF-8 就可以解决了, 但是这么设置的话 gui 下的 emacs 就无法使用 xim, 也就是说不能输入中文, 据说这是一个 emacs 存在已久的 bug
 
-string-width 可以重定义, org-mode 的 table 宽度计算也是根据这个来的, 但是 emacs 的字符的依次显示似乎不是由 string-width 来决定位置的, 而是一个紧挨着一个
+string-width 可以重定义, org-mode 的 table 宽度计算也是根据这个来的, 但是 emacs 的字符的依次显示似乎不是由 string-width 来决定位置的, 而是一个紧挨着一个 (terminal 是算宽度然后从指定宽度的位置开始写, 这就是 terminal 的等宽, 但如果处理不好会有重叠)
 
 当然使用 en_US.UTF-8 是最佳的解决方案, 但是作为代价只能使用 emacs -nw, 这已经是我第四次去研究使用 emacs -nw, 虽然解决了很多问题, 但有还是有一些无法解决, 比如说自动折行 (较长的行) 碰上 auto-complete, M-n/p 无法正确计算位置, 要把那些折的行也算进去
 
