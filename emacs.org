@@ -1,5 +1,7 @@
-#+title: emacs
-#+author: wfj
+#+AUTHOR: wfj
+#+EMAIL: wufangjie1223@126.com
+#+HTML_HEAD_EXTRA: <style type="text/css"> body {padding-left: 21%;} #table-of-contents {position: fixed; width: 20%; height: 100%; top: 0; left: 0; overflow-x: hidden; overflow-y: scroll;} </style>
+#+OPTIONS: ^:{} \n:t email:t
 * emacs25 bug 很多, 很不好用
 elsip 高亮错误\\
 python-mode 很不友好\\
