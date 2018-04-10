@@ -1,1 +1,15 @@
-* 我的学习笔记和配置文件
+#+AUTHOR: wfj
+#+EMAIL: wufangjie1223@126.com
+#+HTML_HEAD_EXTRA: <style type="text/css"> body {padding-left: 21%;} #table-of-contents {position: fixed; width: 20%; height: 100%; top: 0; left: 0; overflow-x: hidden; overflow-y: scroll;} </style>
+#+OPTIONS: ^:{} \n:t email:t
+* my work
+| .emacs              | emacs 配置文件                                     |
+| YouYuan.ttf         | 幼圆字体其中一些用 monaco 替换, 加入了一些等宽处理 |
+| all about font.org  | 等宽字体和 emacs 的相关研究                        |
+| emacs.org           | 使用 emacs 的技巧和总结                            |
+| graph_algorithms.py | 图算法的 python 实现                               |
+| linux.org           | linux 及其软件的使用和配置                         |
+| python.el           | emacs 24.5 自带的 python.el 加入自己的个性化定制   |
+| python.org          | 不是边学边做的笔记, 是之后补的, 可能不好看也不系统 |
+| sklearn_utils.py    | sklearn utils                                      |
+| utils.py            | 常用的函数                                         |
