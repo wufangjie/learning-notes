@@ -2,7 +2,8 @@
 ;; 等宽测试|
 ;; ABCDefgh|
 ;; #####################################################################
-(set-face-attribute 'default nil :font "YouYuan:pixelsize=24")
+(set-face-attribute 'default nil :font "YuanMoWen:pixelsize=22")
+;(set-face-attribute 'default nil :font "YouYuan:pixelsize=24")
 
 
 ;; #####################################################################
@@ -72,6 +73,7 @@
   (princ "#+AUTHOR: wfj
 #+EMAIL: wufangjie1223@126.com
 #+HTML_HEAD_EXTRA: <style type=\"text/css\"> body {padding-left: 21%;} #table-of-contents {position: fixed; width: 20%; height: 100%; top: 0; left: 0; overflow-x: hidden; overflow-y: scroll;} </style>
+#+HTML_MATHJAX: path: \"file:///usr/local/share/MathJax/MathJax.js\"
 #+OPTIONS: ^:{} \\n:t email:t
 " (current-buffer)))
 
@@ -137,7 +139,10 @@
 
    `(region ((t (:background ,blue))) t)
    `(org-block ((t (:foreground "white"))) t)
-   `(org-table ((t (:foreground ,yellow))) t)
+   `(org-table ((t (:background ,gray :foreground "white"))) t)
+   `(org-link ((t (:foreground ,cyan :background nil :bold t))) t)
+   `(org-formula ((t (:foreground ,magenta :background ,gray))) t)
+   ;`(org-table ((t (:foreground ,yellow))) t)
    ;`(org-table ((t (:foreground ,blue))) t)
    `(highlight ((t (:foreground "white" :background ,blue))) t)
    `(lazy-highlight ((t (:foreground "white" :background ,blue))) t)
@@ -355,6 +360,8 @@
       '("--sys-path" "/usr/lib/python3/dist-packages"
 	"--sys-path" "/usr/local/lib/python3.5/dist-packages"
 	"--sys-path" "/usr/lib/python3.5/dist-packages"
+	"--sys-path" "/usr/local/lib/python3.6/dist-packages"
+	"--sys-path" "/usr/lib/python3.6/dist-packages"
 	"--sys-path" "~/packages"))
 
 (setq jedi:setup-keys t)
@@ -395,10 +402,11 @@
 (defun set-transparency (n)
   "only work when window-system"
   (interactive
-   (list (- 100 (min 99 (max 0 (string-to-int
-				(read-from-minibuffer
-				 "Set transparency (0~99): ")))))))
-  (set-frame-parameter (selected-frame) 'alpha `(,n ,n)))
+   (list (string-to-int (read-from-minibuffer "Set transparency (0~99): "))))
+  (let ((n (- 100 (min 99 (max 0 n)))))
+    (set-frame-parameter (selected-frame) 'alpha `(,n ,n))))
+
+(set-transparency 10)
 
 
 (defun exchange-buffer (&optional prefix)
@@ -477,3 +485,58 @@
 ;; (register-input-method
 ;;  "eim-py" "euc-cn" 'eim-use-package
 ;;  "拼音" "汉字拼音输入法" "py.txt")
+
+
+;; (defun char-width-for-chinese (c)
+;;   (let ((w (char-width c)))
+;;     (cond ((= w 1) (if (or (and (>= c ?\u203b) (< c ?\u2581))
+;; 			   (and (>= c ?\u2596) (<= c ?\uffff)))
+;; 		       2 1))
+;; 	  ((= w 2) (if (or (< c ?\u203b)
+;; 			   (and (>= c ?\u2581b) (< c ?\u2596)))
+;; 		       1 2))
+;; 	  (t w))))
+
+;; (defalias 'char-width-backup (symbol-function 'char-width))
+;; (defalias 'string-width-backup (symbol-function 'string-width))
+
+
+;; (defun char-width (c)
+;;   ; for chinese
+;;   (cond ((< c 159) (char-width-backup c))
+;;   	((< c ?\u3000) 1)
+;;   	((< c ?\ufb00) 2)
+;;   	(t (char-width-backup c))))
+
+;; (defun string-width2 (c)
+;;   (reduce (lambda (x y) (+ x (char-width y)))
+;; 	  c
+;; 	  :initial-value 0))
+
+;; (defun string-width2 (c)
+;;   (reduce '+ (mapcar 'char-width-for-chinese c)))
+
+
+
+;; ;;;;; -*- lexical-binding: t -*-
+
+;; (let ((i ?\u3000)
+;;       (pre 0))
+;;   (while (< i 40000)
+;;     (if (= 2 (string-width (format "%c" i)))
+;; 	(progn (unless (= (+ pre 1) i)
+;; 		 (princ (format "%d\t%c|\n" i i)))
+;; 	       (setq pre i)))
+;;     (setq i (+ i 1))))
+
+
+;; from origin org-html-mathjax-template and MathJax sample
+(setq org-html-mathjax-template
+      "<script type=\"text/x-mathjax-config\">\n    MathJax.Hub.Config({\n        displayAlign: \"%ALIGN\",\n        displayIndent: \"%INDENT\",\n\n        extensions: [\"tex2jax.js\"],\n        jax: [\"input/TeX\",\"output/HTML-CSS\"],\n        tex2jax: {inlineMath: [[\"$\",\"$\"],[\"\\\\(\",\"\\\\)\"]]}\n});\n</script>\n<script type=\"text/javascript\"\n        src=\"%PATH\"></script>")
+
+
+;; (setq org-html-mathjax-template
+;;       "<script type=\"text/x-mathjax-config\">\n    MathJax.Hub.Config({\n        displayAlign: \"%ALIGN\",\n        displayIndent: \"%INDENT\",\n\n        extensions: [\"tex2jax.js\"],\n        jax: [\"input/TeX\",\"output/HTML-CSS\"],\n        tex2jax: {inlineMath: [[\"$\",\"$\"],[\"\\\\(\",\"\\\\)\"]]}\n        TeX: { equationNumbers: {autoNumber: \"%AUTONUMBER\"},\n               MultLineWidth: \"%MULTLINEWIDTH\",\n               TagSide: \"%TAGSIDE\",\n               TagIndent: \"%TAGINDENT\"\n             }\n});\n</script>\n<script type=\"text/javascript\"\n        src=\"%PATH\"></script>")
+
+
+; tagindent "0em"
