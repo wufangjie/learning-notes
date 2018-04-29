@@ -35,6 +35,20 @@ sudo apt-get -f install # --fix-broken
 | 葛巾紫 | #E9EBFE | rgb（233，235，254） |
 | 极光灰 | #EAEAEF | rgb（234，234，239） |
 
+** excel 最舒服的背景色
+| 浅蓝 | #a6cee3 |
+| 深蓝 | #2079b4 |
+| 浅绿 | #b0dd8b |
+| 深绿 | #36a12e |
+| 浅红 | #fb9898 |
+| 深红 | #e31b1c |
+| 浅褐 | #cfa256 |
+| 深褐 | #995d13 |
+| 浅黄 | #fae371 |
+| 深黄 | #feb308 |
+| 浅紫 | #cc99ff |
+| 深紫 | #9b59bd |
+
 ** 开机启动管理
 xfce4-session-settings -> Application Autostart\\
 另外尝试过修改 rc.local, 但是没有作用
@@ -190,6 +204,10 @@ git init
 此时会生成一个 .git 目录, 是 git 来跟踪管理版本库的
 #+BEGIN_SRC sh
 git remote add origin git@github.com:wufangjie/learning-notes
+#+END_SRC
+如果提示 fatal: remote origin already exists. 先输入以下代码后再 add
+#+BEGIN_SRC sh
+git remote rm origin
 #+END_SRC
 
 *** 提交文件到版本库
